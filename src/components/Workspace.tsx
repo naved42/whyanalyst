@@ -101,7 +101,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
   };
 
   return (
-    <div className="flex h-screen bg-brand-background dark:bg-zinc-950 overflow-hidden relative">
+    <div className="flex w-full h-screen bg-brand-background dark:bg-zinc-950 overflow-hidden relative">
       {/* SideNavBar */}
       <aside 
         onClick={() => isSidebarCollapsed && setIsSidebarCollapsed(false)}
@@ -280,8 +280,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
       <main 
         className={cn(
           "flex-1 flex flex-col min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-zinc-950 transition-all duration-300 ease-in-out",
-          isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64",
-          "w-full"
+          isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
         )}
       >
         {/* Top App Bar */}
@@ -315,8 +314,13 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
               </button>
-              <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
-                <User className="w-5 h-5" />
+              <button 
+                onClick={() => setActiveView('settings')}
+                className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group relative"
+                title="Workspace Settings"
+              >
+                <div className="absolute inset-0 bg-slate-100 dark:bg-zinc-800 rounded-lg scale-0 group-hover:scale-100 transition-transform origin-center"></div>
+                <User className="w-5 h-5 relative z-10" />
               </button>
             </div>
           </div>

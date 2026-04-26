@@ -22,7 +22,7 @@ import { cn } from '@/src/lib/utils';
 
 export const CommunityView = () => {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 dark:bg-indigo-600 text-white mb-16 p-8 sm:p-16 shadow-2xl">
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

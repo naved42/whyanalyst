@@ -152,7 +152,7 @@ export const FilesView = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
       <div className="mb-8">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Files Management</h2>
         <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 font-medium">Manage your datasets, model outputs, and cognitive assets.</p>

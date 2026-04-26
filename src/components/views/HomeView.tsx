@@ -165,7 +165,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
 
   if (messages.length > 0) {
     return (
-      <div className="max-w-4xl mx-auto w-full flex flex-col h-[calc(100vh-140px)]">
+      <div className="w-full flex flex-col h-[calc(100vh-140px)]">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white">
@@ -307,7 +307,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-20 flex flex-col items-center">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-20 flex flex-col items-center">
       {/* Hero Heading */}
       <div className="text-center mb-8 sm:mb-12">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">

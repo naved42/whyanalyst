@@ -81,7 +81,7 @@ export const HistoryView = ({ onReRun }: HistoryViewProps) => {
   );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Analysis History</h2>

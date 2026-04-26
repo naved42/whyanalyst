@@ -78,7 +78,7 @@ export const NotebooksView = () => {
 
   if (selectedNotebook) {
     return (
-      <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen">
+      <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
         <div className="mb-6 flex items-center justify-between">
           <button 
             onClick={() => setSelectedNotebook(null)}
@@ -115,7 +115,7 @@ export const NotebooksView = () => {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen font-sans">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen font-sans">
       {/* Page Header */}
       <div className="mb-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>

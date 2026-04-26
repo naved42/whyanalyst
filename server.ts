@@ -62,6 +62,28 @@ const verifyAdmin = async (req: express.Request, res: express.Response, next: ex
     res.status(401).json({ error: "Invalid identity token" });
   }
 };
+
+const verifyUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (getApps().length === 0) {
+    return res.status(503).json({ error: "Authentication service unavailable" });
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: "Missing or invalid authorization header" });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  try {
+    const auth = getAuth();
+    const decodedToken = await auth.verifyIdToken(token);
+    (req as any).user = decodedToken;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid identity token" });
+  }
+};
+
 const upload = multer({ dest: 'uploads/' });
 
 // In-memory state (Simulating a database)
@@ -103,7 +125,7 @@ async function startServer() {
   const startPythonBackend = () => {
     try {
       console.log("Attempting to start Python FastAPI backend...");
-      const pythonProcess = spawn("python3", ["main.py"]);
+      const pythonProcess = spawn("python", ["main.py"]);
 
       pythonProcess.on("error", (err) => {
         console.error("Failed to start Python process:", err.message);
@@ -151,54 +173,35 @@ async function startServer() {
   });
 
   // API: Get Datasets
-  app.get("/api/datasets", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let userId = 'anonymous';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      try {
-        const decodedToken = await getAuth().verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch (e) {}
-    }
+  app.get("/api/datasets", verifyUser, (req, res) => {
+    const userId = (req as any).user.uid;
     // Filter datasets by userId
-    const userDatasets = db.datasets.filter(d => !d.userId || d.userId === userId);
+    const userDatasets = db.datasets.filter(d => d.userId === userId);
     res.json(userDatasets);
   });
 
   // API: Delete Dataset
-  app.delete("/api/datasets/:id", (req, res) => {
-    db.datasets = db.datasets.filter(d => d.id !== req.params.id);
-    res.json({ success: true });
+  app.delete("/api/datasets/:id", verifyUser, (req, res) => {
+    const userId = (req as any).user.uid;
+    const index = db.datasets.findIndex(d => d.id === req.params.id && d.userId === userId);
+    if (index !== -1) {
+      db.datasets.splice(index, 1);
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Dataset not found or unauthorized" });
+    }
   });
 
   // API: Get History
-  app.get("/api/history", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let userId = 'anonymous';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      try {
-        const decodedToken = await getAuth().verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch (e) {}
-    }
-    // Filter history by userId if it's set in the record
-    const userHistory = db.history.filter(h => !h.userId || h.userId === userId);
+  app.get("/api/history", verifyUser, (req, res) => {
+    const userId = (req as any).user.uid;
+    const userHistory = db.history.filter(h => h.userId === userId);
     res.json(userHistory);
   });
 
   // API: Save Analysis to History
-  app.post("/api/history", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let userId = 'anonymous';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      try {
-        const decodedToken = await getAuth().verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch (e) {}
-    }
+  app.post("/api/history", verifyUser, (req, res) => {
+    const userId = (req as any).user.uid;
     const record: AnalysisRecord = {
       id: Date.now().toString(),
       ...req.body,
@@ -210,18 +213,10 @@ async function startServer() {
   });
 
   // API: Delete History Item
-  app.delete("/api/history/:id", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let userId = 'anonymous';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      try {
-        const decodedToken = await getAuth().verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch (e) {}
-    }
+  app.delete("/api/history/:id", verifyUser, (req, res) => {
+    const userId = (req as any).user.uid;
     
-    const index = db.history.findIndex(h => h.id === req.params.id && (!h.userId || h.userId === userId));
+    const index = db.history.findIndex(h => h.id === req.params.id && h.userId === userId);
     if (index !== -1) {
       db.history.splice(index, 1);
       res.json({ success: true });
@@ -231,16 +226,8 @@ async function startServer() {
   });
 
   // API: File Upload
-  app.post("/api/upload", upload.single('file'), async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let userId = 'anonymous';
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split('Bearer ')[1];
-      try {
-        const decodedToken = await getAuth().verifyIdToken(token);
-        userId = decodedToken.uid;
-      } catch (e) {}
-    }
+  app.post("/api/upload", verifyUser, upload.single('file'), (req, res) => {
+    const userId = (req as any).user.uid;
 
     if (!req.file) {
       return res.status(400).json({ error: "No file provided" });

@@ -59,7 +59,7 @@ export const ConnectDataView = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto min-h-screen">
+    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
       {/* Hero Header */}
       <div className="mb-10 text-center sm:text-left">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Connect Your Data</h2>

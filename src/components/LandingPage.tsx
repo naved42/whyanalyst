@@ -20,8 +20,11 @@ import {
   ChevronRight,
   Zap as Sparkles, // Using Zap for Sparkles feel
   LineChart,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { Button } from './ui/button';
+import { useTheme } from '../hooks/useTheme';
 
 interface LandingPageProps {
   onAuth: () => void;
@@ -30,6 +33,7 @@ interface LandingPageProps {
 export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const switchView = (view: 'home' | 'pricing' | 'resources' | 'contact') => {
     setCurrentView(view);
@@ -58,17 +62,17 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             <Sparkles className="w-3.5 h-3.5" />
             <span className="text-xs font-bold uppercase tracking-wider">The Future of Data Science</span>
           </div>
-          <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-gray-900">
+          <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-gray-900 dark:text-white">
             Your <span className="text-gradient">AI Data Scientist</span> is here.
           </h1>
           <p className="text-lg text-brand-surface-variant max-w-lg leading-relaxed">
             Connect your data sources and get professional-grade insights in seconds. Ask questions in plain English, and Julius handles the complex modeling, cleaning, and visualization.
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-4">
-            <button onClick={onAuth} className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all">
+            <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all">
               Start Analyzing Free
             </button>
-            <button onClick={onAuth} className="px-8 py-4 rounded-xl font-bold text-lg border border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2 group">
+            <button onClick={onAuth} className="px-8 py-4 rounded-xl font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-all flex items-center gap-2 group">
               View Live Demo
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
@@ -80,7 +84,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           viewport={{ once: true }}
           className="lg:w-1/2 w-full relative"
         >
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 bg-white p-2">
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-2">
             <img 
               alt="Analysis Interface Preview" 
               className="w-full rounded-xl object-cover aspect-video shadow-inner" 
@@ -95,14 +99,14 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
       </section>
 
       {/* Social Proof */}
-      <section className="bg-white border-y border-slate-100 py-12">
+      <section className="bg-white dark:bg-slate-950 border-y border-slate-100 dark:border-slate-800 py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Trusted by teams at</span>
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Trusted by teams at</span>
           <div className="flex flex-wrap justify-center gap-12 lg:gap-24 items-center">
-            <div className="text-2xl font-black text-slate-800 tracking-tighter">TECHCORP</div>
+            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">TECHCORP</div>
             <div className="text-2xl font-black text-brand-primary tracking-tighter">DATAFLOW</div>
-            <div className="text-2xl font-black text-slate-800 tracking-tighter">QUANTUM</div>
-            <div className="text-2xl font-black text-slate-800 tracking-tighter">SPHERION</div>
+            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">QUANTUM</div>
+            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">SPHERION</div>
           </div>
         </div>
       </section>
@@ -114,7 +118,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold text-gray-900"
+            className="text-4xl font-bold text-gray-900 dark:text-white"
           >
             Precision Tools for Modern Teams
           </motion.h2>
@@ -125,36 +129,36 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
             <div className="bg-brand-primary/10 text-brand-primary w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <Cloud className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Connect Anything</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Connect Anything</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Seamlessly ingest data from CSV, Excel, SQL databases, and cloud storage providers with one secure click.
             </p>
           </motion.div>
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
-            <div className="bg-blue-50 text-blue-600 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
+            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <MessageSquare className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Natural Language</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Natural Language</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Ask questions like "Which channel had the highest ROI?" and get instant complex data interpretations.
             </p>
           </motion.div>
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
-            <div className="bg-emerald-50 text-emerald-600 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <BarChart className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Automated Visuals</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Automated Visuals</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Beautiful, publication-ready charts and reports generated automatically to tell your data's true story.
             </p>
@@ -248,21 +252,21 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const renderPricing = () => (
     <section className="px-6 py-24 max-w-7xl mx-auto">
       <div className="text-center mb-16 space-y-4">
-        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Scalable Intelligence for Every Scope</h2>
+        <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Scalable Intelligence for Every Scope</h2>
         <p className="text-brand-surface-variant text-lg max-w-2xl mx-auto">
           Transparent pricing for high-performance AI tools. Whether you're a solo researcher or an enterprise team, we have a plan that evolves with you.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
         {/* Free */}
-        <div className="bg-white border border-slate-100 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Free</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Free</h3>
             <p className="text-brand-surface-variant text-sm">For curious individuals and enthusiasts.</p>
           </div>
           <div className="mb-8">
-            <span className="text-5xl font-bold text-gray-900">$0</span>
-            <span className="text-slate-400 font-medium ml-2">/ forever</span>
+            <span className="text-5xl font-bold text-gray-900 dark:text-white">$0</span>
+            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ forever</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {['100 queries / month', 'Standard model access', '1GB Workspace storage'].map((item, i) => (
@@ -272,22 +276,22 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </li>
             ))}
           </ul>
-          <button onClick={onAuth} className="w-full py-4 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95">
+          <button onClick={onAuth} className="w-full py-4 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white transition-all active:scale-95">
             Join Community
           </button>
         </div>
         {/* Pro */}
-        <div className="bg-white border-2 border-brand-primary p-10 rounded-3xl flex flex-col shadow-2xl relative transform lg:-translate-y-6">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-primary text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+        <div className="bg-white dark:bg-slate-900 border-2 border-brand-primary p-10 rounded-3xl flex flex-col shadow-2xl relative transform lg:-translate-y-6">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-primary text-brand-on-primary px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
             Most Popular
           </div>
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pro</h3>
             <p className="text-brand-surface-variant text-sm">For power users and data professionals.</p>
           </div>
           <div className="mb-8">
-            <span className="text-5xl font-bold text-gray-900">$29</span>
-            <span className="text-slate-400 font-medium ml-2">/ month</span>
+            <span className="text-5xl font-bold text-gray-900 dark:text-white">$29</span>
+            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ month</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {[
@@ -303,19 +307,19 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </li>
             ))}
           </ul>
-          <button onClick={onAuth} className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/30 hover:opacity-90 transition-all active:scale-95">
+          <button onClick={onAuth} className="w-full py-4 bg-brand-primary text-brand-on-primary rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/30 hover:opacity-90 transition-all active:scale-95">
             Go Premium
           </button>
         </div>
         {/* Enterprise */}
-        <div className="bg-white border border-slate-100 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Enterprise</h3>
             <p className="text-brand-surface-variant text-sm">For large teams and high-compliance labs.</p>
           </div>
           <div className="mb-8">
-            <span className="text-4xl font-bold text-gray-900">Custom</span>
-            <span className="text-slate-400 font-medium ml-2">/ year</span>
+            <span className="text-4xl font-bold text-gray-900 dark:text-white">Custom</span>
+            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ year</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {['Dedicated Instance', 'SAML/SSO Integration', 'Unlimited storage', '24/7 dedicated support'].map((item, i) => (
@@ -336,7 +340,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const renderResources = () => (
     <section className="px-6 py-24 max-w-7xl mx-auto space-y-16">
       <div className="text-center space-y-4">
-        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">How can we help you today?</h2>
+        <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">How can we help you today?</h2>
         <p className="text-brand-surface-variant text-lg max-w-2xl mx-auto">
           Explore our extensive documentation, detailed case studies, and community-driven guides to master the Cognitive AI platform.
         </p>
@@ -349,7 +353,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           { title: 'Case Studies', desc: 'Real-world success stories from partners.', icon: LineChart },
           { title: 'Community', desc: 'Join the discussion with other experts.', icon: MessageSquare }
         ].map((item, i) => (
-          <div key={i} className="group p-8 bg-white border border-slate-100 rounded-3xl shadow-sm hover:border-brand-primary/20 hover:shadow-md transition-all cursor-pointer">
+          <div key={i} className="group p-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm hover:border-brand-primary/20 hover:shadow-md transition-all cursor-pointer">
             <div className="w-12 h-12 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <item.icon className="w-6 h-6" />
             </div>
@@ -368,25 +372,25 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         <div className="lg:col-span-7 space-y-12">
           <header className="space-y-4">
             <span className="text-brand-primary font-bold text-xs uppercase tracking-widest px-3 py-1 bg-brand-primary/10 rounded-full">Contact Us</span>
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 leading-[1.1]">Let's build the future of intelligence together.</h1>
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.1]">Let's build the future of intelligence together.</h1>
             <p className="text-lg text-brand-surface-variant max-w-xl">Our team of experts is ready to help you integrate enterprise-grade AI into your existing data workflows.</p>
           </header>
 
-          <div className="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
+          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
-                  <input className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400" placeholder="John Doe" type="text"/>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Full Name</label>
+                  <input className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="John Doe" type="text"/>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
-                  <input className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400" placeholder="john@company.ai" type="email"/>
+                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
+                  <input className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="john@company.ai" type="email"/>
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Inquiry Type</label>
-                <select className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all text-slate-800">
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Inquiry Type</label>
+                <select className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all text-slate-800 dark:text-slate-200">
                   <option>Sales Inquiry</option>
                   <option>Technical Support</option>
                   <option>Partnership Proposal</option>
@@ -394,13 +398,13 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Message</label>
-                <textarea className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 resize-none h-40" placeholder="How can our technical team assist your workspace today?"></textarea>
+                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Message</label>
+                <textarea className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white resize-none h-40" placeholder="How can our technical team assist your workspace today?"></textarea>
               </div>
               <button 
                 type="button"
                 onClick={onAuth}
-                className="w-full md:w-auto bg-brand-primary text-white px-10 py-4 rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-brand-primary/20"
+                className="w-full md:w-auto bg-brand-primary text-brand-on-primary px-10 py-4 rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-brand-primary/20"
               >
                 Send Message
               </button>
@@ -413,24 +417,24 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-4">
               {/* Email Card */}
-              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
                 <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center shrink-0 text-brand-primary">
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1">Email Our Team</h4>
+                  <h4 className="font-bold text-lg mb-1 dark:text-white">Email Our Team</h4>
                   <p className="text-brand-surface-variant text-sm">hello@cognitivetech.ai</p>
                   <p className="text-brand-surface-variant text-sm">support@cognitivetech.ai</p>
                 </div>
               </div>
 
               {/* Social Card */}
-              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
-                <div className="w-12 h-12 bg-blue-50/50 rounded-xl flex items-center justify-center shrink-0 text-blue-600">
+              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+                <div className="w-12 h-12 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center shrink-0 text-blue-600 dark:text-blue-400">
                   <Globe className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1">Stay Connected</h4>
+                  <h4 className="font-bold text-lg mb-1 dark:text-white">Stay Connected</h4>
                   <div className="flex gap-4 mt-2">
                     <Twitter className="w-5 h-5 text-slate-400 hover:text-brand-primary cursor-pointer" />
                     <Linkedin className="w-5 h-5 text-slate-400 hover:text-brand-primary cursor-pointer" />
@@ -439,12 +443,12 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </div>
 
               {/* Office Card */}
-              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 text-emerald-600">
+              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
                   <Globe className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1">Global HQ</h4>
+                  <h4 className="font-bold text-lg mb-1 dark:text-white">Global HQ</h4>
                   <p className="text-brand-surface-variant text-sm">450 Science Park Way, Suite 200</p>
                   <p className="text-brand-surface-variant text-sm">Palo Alto, CA 94304</p>
                 </div>
@@ -478,9 +482,9 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   return (
-    <div className="min-h-screen bg-brand-background text-brand-on-surface selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="min-h-screen bg-brand-background dark:bg-zinc-950 text-brand-on-surface dark:text-white selection:bg-brand-primary/20 selection:text-brand-primary transition-colors">
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm' : 'bg-transparent'}`}>
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
           <div 
             onClick={() => switchView('home')} 
@@ -516,8 +520,15 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             </button>
           </div>
           <div className="flex items-center gap-4">
+            <button 
+              onClick={toggleTheme} 
+              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <button onClick={onAuth} className="text-slate-600 dark:text-slate-400 font-medium hover:text-brand-primary px-4 py-2 transition-colors duration-200">Sign In</button>
-            <button onClick={onAuth} className="bg-brand-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20">Get Started</button>
+            <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20">Get Started</button>
           </div>
         </div>
       </nav>
@@ -547,7 +558,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                 Join over 50,000 analysts and data scientists using Julius AI to accelerate their research and automate decision-making.
               </p>
               <div className="pt-8">
-                <button onClick={onAuth} className="bg-white text-brand-primary px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40">
+                <button onClick={onAuth} className="bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40">
                   Start Your Journey Free
                 </button>
               </div>

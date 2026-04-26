@@ -79,6 +79,7 @@ export default function App() {
   if (!user) {
     return (
       <>
+        <Toaster position="top-right" richColors />
         <LandingPage onAuth={() => setShowAuthOverlay(true)} />
         <AnimatePresence>
           {showAuthOverlay && (
@@ -116,7 +117,7 @@ export default function App() {
 
   return (
     <TooltipProvider>
-      <div className="flex h-screen bg-brand-background overflow-hidden selection:bg-brand-primary/10 transition-colors">
+      <div className="flex w-full h-screen bg-brand-background dark:bg-zinc-950 overflow-hidden selection:bg-brand-primary/10 transition-colors">
         <Toaster position="top-right" richColors />
         <Workspace 
           user={user} 
