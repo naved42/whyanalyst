@@ -10,8 +10,11 @@ import { auth, googleProvider } from '../../lib/firebase';
 import { LogIn, UserPlus, Mail, Lock, Loader2, Chrome } from 'lucide-react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
+import { cn } from '@/src/lib/utils';
+import { useAuth } from '../../hooks/useAuth';
 
 export const AuthModal = () => {
+  const { signInMock } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,7 +63,19 @@ export const AuthModal = () => {
     }
   };
 
-  const social_btn_style = "w-full h-12 flex items-center justify-center gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all";
+  const handleDemoSignIn = async () => {
+    setLoading(true);
+    try {
+      signInMock();
+      toast.success("Entering Demo Workspace...");
+    } catch (error) {
+      toast.error("Demo access failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const social_btn_style = "w-full h-12 flex items-center justify-center gap-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm";
 
   return (
     <div className="w-full max-w-md mx-auto p-4">
@@ -69,7 +84,7 @@ export const AuthModal = () => {
           <motion.div 
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-16 h-16 bg-indigo-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-indigo-500/20"
+            className="w-16 h-16 bg-brand-primary rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg shadow-brand-primary/20"
           >
             {isLogin ? <LogIn className="w-8 h-8 text-white" /> : <UserPlus className="w-8 h-8 text-white" />}
           </motion.div>
@@ -82,18 +97,27 @@ export const AuthModal = () => {
         </div>
 
         <div className="space-y-4">
-          <button 
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className={social_btn_style}
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Chrome className="w-4 h-4 text-rose-500" />}
-            Continue with Google
-          </button>
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className={social_btn_style}
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Chrome className="w-4 h-4 text-rose-500" />}
+              Google
+            </button>
+            <button 
+              onClick={handleDemoSignIn}
+              disabled={loading}
+              className={cn(social_btn_style, "bg-indigo-600 dark:bg-indigo-600 text-white border-transparent hover:bg-indigo-700")}
+            >
+              Demo Login
+            </button>
+          </div>
 
           <div className="relative flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-zinc-100 dark:bg-zinc-800" />
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">or email</span>
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest whitespace-nowrap">or use email</span>
             <div className="flex-1 h-px bg-zinc-100 dark:bg-zinc-800" />
           </div>
 

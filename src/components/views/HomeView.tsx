@@ -34,15 +34,21 @@ interface Message {
 interface HomeViewProps {
   initialPrompt?: string;
   onClearPrompt?: () => void;
+  onUpgrade?: () => void;
+  onNavigate?: (view: any) => void;
 }
 
-export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
+export const HomeView = ({ initialPrompt, onClearPrompt, onUpgrade, onNavigate }: HomeViewProps) => {
   const { getToken, user } = useAuth();
   const [input, setInput] = React.useState(initialPrompt || '');
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isAdvancedReasoning, setIsAdvancedReasoning] = React.useState(false);
   const [outputCount, setOutputCount] = React.useState(0);
+  const [attachedFile, setAttachedFile] = React.useState<File | null>(null);
+  const [isAgentMenuOpen, setIsAgentMenuOpen] = React.useState(false);
+  const [isToolsMenuOpen, setIsToolsMenuOpen] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -60,16 +66,16 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
   }, [messages, isLoading]);
 
   const quickActions = [
-    { label: 'Stock Analysis', icon: TrendingUp, color: 'text-amber-500', question: 'Enter a stock ticker or company name.' },
-    { label: 'Excel', icon: Table, color: 'text-green-500', question: 'Paste your data or describe what you need.' },
-    { label: 'Slides', icon: Presentation, color: 'text-orange-500', question: 'What is your topic or dataset?' },
-    { label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500', question: 'Upload or paste your data.' },
-    { label: 'Tracker', icon: Target, color: 'text-purple-500', question: 'What do you want to track? (tasks, habits, expenses, goals)' },
-    { label: 'Report', icon: FileText, color: 'text-red-500', question: 'What is this report about? Paste your data or topic.' },
+    { label: 'Stock Analysis', icon: TrendingUp, color: 'text-amber-500', prompt: 'Perform a detailed technical analysis for [Ticker Symbol]. Include moving averages and RSI.' },
+    { label: 'Excel', icon: Table, color: 'text-green-500', prompt: 'Clean this Excel data: remove duplicates, fix date formats, and handle missing values in the revenue column.' },
+    { label: 'Slides', icon: Presentation, color: 'text-orange-500', prompt: 'Generate a presentation outline from my latest dataset, focusing on quarterly growth and market share.' },
+    { label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500', prompt: 'Create an interactive Plotly dashboard showing sales performance by region and product category.' },
+    { label: 'Tracker', icon: Target, color: 'text-purple-500', prompt: 'Build a KPI tracker for [Project Name] including completion rates and bottleneck alerts.' },
+    { label: 'Report', icon: FileText, color: 'text-red-500', prompt: 'Generate a comprehensive PDF report summarizing the key findings from my current analysis session.' },
   ];
 
   const handleQuickAction = (action: any) => {
-    setInput(action.question);
+    setInput(action.prompt);
   };
 
   const saveToHistory = async (query: string, result: any) => {
@@ -326,7 +332,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
             {outputCount < 3 ? `Free plan | ${3 - outputCount} analysis tokens remaining` : "Limit reached | Upgrade for more powers"}
           </span>
           <button 
-            onClick={() => { setOutputCount(0); setMessages(prev => [...prev, { role: 'assistant', content: 'Demo: Plan reset to unlimited tokens.' }]) }}
+            onClick={onUpgrade}
             className="text-[10px] sm:text-xs font-black text-slate-900 dark:text-white hover:underline px-1 uppercase tracking-widest"
           >
             Upgrade
@@ -335,8 +341,14 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
       </div>
 
       {/* Main Prompt Container */}
-      <div className="w-full max-w-3xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-800 p-3 sm:p-4 transition-all focus-within:ring-4 focus-within:ring-slate-900/5 dark:focus-within:ring-white/5">
+      <div className="w-full max-w-3xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-800 p-3 sm:p-4 transition-all focus-within:ring-4 focus-within:ring-slate-900/5 dark:focus-within:ring-white/5 relative">
         <form onSubmit={handleSubmit}>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={(e) => setAttachedFile(e.target.files?.[0] || null)}
+          />
           <div className="relative">
             <textarea 
               value={input}
@@ -350,18 +362,97 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
               className="w-full border-0 focus:ring-0 text-base sm:text-lg placeholder-slate-400 font-medium resize-none p-2 min-h-[100px] sm:min-h-[140px] text-slate-900 dark:text-white bg-transparent" 
               placeholder="Clean and transform my dataset..." 
             />
+            {attachedFile && (
+              <div className="absolute bottom-2 left-2 flex items-center gap-2 bg-slate-50 dark:bg-zinc-800 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-zinc-700 animate-in slide-in-from-bottom-2">
+                <FileText className="w-3.5 h-3.5 text-indigo-500" />
+                <span className="text-[10px] font-bold text-slate-900 dark:text-white truncate max-w-[120px]">{attachedFile.name}</span>
+                <button onClick={() => setAttachedFile(null)} className="p-0.5 hover:bg-slate-200 dark:hover:bg-zinc-700 rounded-full">
+                  <RefreshCw className="w-3 h-3 text-slate-400" />
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-50 dark:border-zinc-800 pt-3 mt-2 gap-4">
             <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-hide">
-              <button type="button" className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0" title="Connectors">
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0" 
+                title="Attach Data"
+              >
                 <Cable className="w-5 h-5" />
               </button>
-              <button type="button" className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0" title="Tools">
-                <Construction className="w-5 h-5" />
-              </button>
-              <button type="button" className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0" title="Agent">
-                <Headset className="w-5 h-5" />
-              </button>
+              
+              <div className="relative">
+                <button 
+                  type="button" 
+                  onClick={() => setIsToolsMenuOpen(!isToolsMenuOpen)}
+                  className={cn(
+                    "p-2 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0",
+                    isToolsMenuOpen ? "text-slate-900 dark:text-white bg-slate-100 dark:bg-zinc-800" : "text-slate-400"
+                  )}
+                  title="Transformations"
+                >
+                  <Construction className="w-5 h-5" />
+                </button>
+                <AnimatePresence>
+                  {isToolsMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 z-50"
+                    >
+                      {['Auto-Filter', 'Schema Fix', 'Type Normalize'].map((tool) => (
+                        <button 
+                          key={tool}
+                          type="button"
+                          onClick={() => { setInput(prev => `${prev} [Use Tool: ${tool}]`); setIsToolsMenuOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white"
+                        >
+                          {tool}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <div className="relative">
+                <button 
+                  type="button" 
+                  onClick={() => setIsAgentMenuOpen(!isAgentMenuOpen)}
+                  className={cn(
+                    "p-2 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg transition-all flex-shrink-0",
+                    isAgentMenuOpen ? "text-slate-900 dark:text-white bg-slate-100 dark:bg-zinc-800" : "text-slate-400"
+                  )}
+                  title="Agent Selection"
+                >
+                  <Headset className="w-5 h-5" />
+                </button>
+                <AnimatePresence>
+                  {isAgentMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 z-50"
+                    >
+                      {['Data Analyst', 'Financial Guru', 'Code Architect'].map((agent) => (
+                        <button 
+                          key={agent}
+                          type="button"
+                          onClick={() => { setInput(prev => `${prev} @${agent.replace(' ', '')}`); setIsAgentMenuOpen(false); }}
+                          className="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white"
+                        >
+                          {agent}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <div className="h-6 w-px bg-slate-200 dark:bg-zinc-800 mx-1 flex-shrink-0"></div>
               <button 
                 type="button" 
@@ -377,7 +468,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
             </div>
             <button 
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
               className="w-full sm:w-10 h-10 bg-[#1032CF] dark:bg-indigo-600 text-white rounded-xl flex items-center justify-center active:scale-95 transition-transform disabled:opacity-50 disabled:active:scale-100 shadow-lg shadow-black/10"
             >
               {isLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <ArrowUp className="w-5 h-5 hidden sm:block" />}
@@ -404,14 +495,40 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
       {/* Bento Preview Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-16 sm:mt-24">
         {[
-          { title: 'Data Sources', desc: 'Connect to Google Sheets, PostgreSQL, or upload CSV files directly for AI-driven analysis.', icon: CloudUpload, bg: 'bg-slate-50 dark:bg-zinc-800', text: 'text-slate-700 dark:text-zinc-300' },
-          { title: 'Automated Cleanup', desc: 'Fix missing values, normalize formats, and remove duplicates with one intelligent prompt.', icon: Sparkles, bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400' },
-          { title: 'Visual Insights', desc: 'Generate publication-quality charts and interactive dashboards in seconds with Plotly.', icon: BarChart, bg: 'bg-green-50 dark:bg-emerald-900/20', text: 'text-green-600 dark:text-emerald-400', wide: true }
+          { 
+            title: 'Data Sources', 
+            desc: 'Connect to Google Sheets, PostgreSQL, or upload CSV files directly for AI-driven analysis.', 
+            icon: CloudUpload, 
+            bg: 'bg-slate-50 dark:bg-zinc-800', 
+            text: 'text-slate-700 dark:text-zinc-300',
+            action: () => onNavigate?.('connect')
+          },
+          { 
+            title: 'Automated Cleanup', 
+            desc: 'Fix missing values, normalize formats, and remove duplicates with one intelligent prompt.', 
+            icon: Sparkles, 
+            bg: 'bg-purple-50 dark:bg-purple-900/20', 
+            text: 'text-purple-600 dark:text-purple-400',
+            action: () => { setInput('Clean and transform my current dataset: fix nulls, duplicates, and column types.'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          },
+          { 
+            title: 'Visual Insights', 
+            desc: 'Generate publication-quality charts and interactive dashboards in seconds with Plotly.', 
+            icon: BarChart, 
+            bg: 'bg-green-50 dark:bg-emerald-900/20', 
+            text: 'text-green-600 dark:text-emerald-400', 
+            wide: true,
+            action: () => { setInput('Generate an interactive Plotly dashboard with multiple insights from my data.'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+          }
         ].map((feat, i) => (
-          <div key={i} className={cn(
-            "bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-shadow group cursor-pointer flex flex-col items-center sm:items-start text-center sm:text-left",
-            feat.wide && "sm:col-span-2 lg:col-span-1"
-          )}>
+          <div 
+            key={i} 
+            onClick={feat.action}
+            className={cn(
+              "bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-shadow group cursor-pointer flex flex-col items-center sm:items-start text-center sm:text-left",
+              feat.wide && "sm:col-span-2 lg:col-span-1"
+            )}
+          >
             <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform", feat.bg, feat.text)}>
               <feat.icon className="w-6 h-6" />
             </div>

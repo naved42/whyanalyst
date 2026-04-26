@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useTheme } from '../hooks/useTheme';
+import { cn } from '@/src/lib/utils';
 
 interface LandingPageProps {
   onAuth: () => void;
@@ -51,64 +52,157 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const renderHome = () => (
     <>
       {/* Hero Section */}
-      <section className="px-6 py-12 lg:py-24 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 relative">
+      <section className="relative px-6 py-12 lg:py-32 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20 overflow-visible">
+        {/* Modern Background Grid & Mesh */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+        </div>
+
         <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="lg:w-1/2 space-y-8"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="lg:w-1/2 space-y-10 relative z-10"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="text-xs font-bold uppercase tracking-wider">The Future of Data Science</span>
-          </div>
-          <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-gray-900 dark:text-white">
-            Your <span className="text-gradient">AI Data Scientist</span> is here.
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-brand-primary/20 shadow-xl shadow-brand-primary/5"
+          >
+            <div className="w-2 h-2 rounded-full bg-brand-primary animate-ping"></div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary">v4.2 Neural Engine Live</span>
+          </motion.div>
+
+          <h1 className="text-6xl lg:text-8xl font-black leading-[0.95] tracking-tight text-gray-900 dark:text-white">
+            Meet your <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-indigo-500 to-purple-600 drop-shadow-sm">AI Data Scientist.</span>
           </h1>
-          <p className="text-lg text-brand-surface-variant max-w-lg leading-relaxed">
-            Connect your data sources and get professional-grade insights in seconds. Ask questions in plain English, and Julius handles the complex modeling, cleaning, and visualization.
+
+          <p className="text-xl text-brand-surface-variant max-w-lg leading-relaxed font-medium">
+            Julius connects your data silos into a single, intelligent workspace. Ask questions, clean datasets, and build predictive models with professional-grade rigor—all in seconds.
           </p>
-          <div className="flex flex-wrap items-center gap-4 pt-4">
-            <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all">
-              Start Analyzing Free
+
+          <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
+            <button 
+              onClick={onAuth} 
+              className="w-full sm:w-auto bg-brand-primary text-brand-on-primary px-10 py-5 rounded-2xl font-black text-lg shadow-2xl shadow-brand-primary/40 hover:-translate-y-1 active:scale-95 transition-all relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
+              Get Started Free
             </button>
-            <button onClick={onAuth} className="px-8 py-4 rounded-xl font-bold text-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-gray-900 dark:text-white transition-all flex items-center gap-2 group">
-              View Live Demo
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <button 
+              onClick={() => {
+                localStorage.setItem('mock_user', JSON.stringify({
+                  uid: 'demo-user-123',
+                  email: 'demo@cognitivetech.ai',
+                  displayName: 'Demo Scientist',
+                  photoURL: 'https://i.pravatar.cc/150?u=demo',
+                  emailVerified: true
+                }));
+                window.location.reload();
+              }} 
+              className="w-full sm:w-auto px-10 py-5 rounded-2xl font-black text-lg bg-white dark:bg-zinc-900 text-brand-primary border-2 border-brand-primary/20 shadow-xl shadow-black/5 hover:-translate-y-1 active:scale-95 transition-all"
+            >
+              Demo Access
             </button>
+          </div>
+
+          <div className="flex items-center gap-6 pt-12 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex -space-x-3">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 overflow-hidden shadow-lg">
+                  <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
+                </div>
+              ))}
+              <div className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-brand-primary flex items-center justify-center text-[10px] font-bold text-white shadow-lg">+12k</div>
+            </div>
+            <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+              Trusted by <span className="text-slate-900 dark:text-white">12,000+</span> data scientists worldwide.
+            </p>
           </div>
         </motion.div>
+
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 1, ease: "easeOut" }}
           className="lg:w-1/2 w-full relative"
         >
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-2">
-            <img 
-              alt="Analysis Interface Preview" 
-              className="w-full rounded-xl object-cover aspect-video shadow-inner" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZhGCM9_CIfm4TgtM_FA1tKpgjO1D--6bUtdTCuJJGKRNUshwFyftqE0Z3kbd8BHQtyyk6Rg9CfpGbbjgsRX8sh_-ujf-apq_DFo1emN5-tySrHdCn1sXYh4yaLxtjC2RkGoyVR__XUlJWvnj10_f1tS9B5sfWeov-NJwmHnpgrhD2RU4Pbo97FBaECT51rneVWrCvWN82hywqDJYCZ0pEQ9u27i98ncCSTwmlz1aWHzc9ws2l6-TL7SAPLmLe6U01Q6iMI2Dca7E"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/10 to-transparent pointer-events-none"></div>
+          {/* Main Dashboard Preview Container */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-indigo-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/50 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-3">
+              <div className="rounded-[2rem] overflow-hidden relative">
+                <img 
+                  alt="Analysis Interface Preview" 
+                  className="w-full object-cover aspect-[4/3] shadow-inner transform group-hover:scale-[1.02] transition-transform duration-700" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZhGCM9_CIfm4TgtM_FA1tKpgjO1D--6bUtdTCuJJGKRNUshwFyftqE0Z3kbd8BHQtyyk6Rg9CfpGbbjgsRX8sh_-ujf-apq_DFo1emN5-tySrHdCn1sXYh4yaLxtjC2RkGoyVR__XUlJWvnj10_f1tS9B5sfWeov-NJwmHnpgrhD2RU4Pbo97FBaECT51rneVWrCvWN82hywqDJYCZ0pEQ9u27i98ncCSTwmlz1aWHzc9ws2l6-TL7SAPLmLe6U01Q6iMI2Dca7E"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary/20 via-transparent to-white/10 pointer-events-none"></div>
+              </div>
+
+              {/* Floating UI Elements */}
+              <motion.div 
+                animate={{ y: [0, -10, 0] }} 
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-10 -left-10 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 hidden lg:block"
+              >
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                      <TrendingUp className="w-6 h-6" />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400">Growth Forecast</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">+24.5%</p>
+                   </div>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                animate={{ y: [0, 10, 0] }} 
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute bottom-20 -right-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 hidden lg:block"
+              >
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                      <Zap className="w-6 h-6" />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-black uppercase text-slate-400">Processing Speed</p>
+                      <p className="text-lg font-bold text-slate-900 dark:text-white">0.8s / epoch</p>
+                   </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
-          {/* Decorative blurs */}
-          <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-primary/20 blur-3xl -z-10 rounded-full animate-pulse"></div>
-          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-400/20 blur-3xl -z-10 rounded-full"></div>
         </motion.div>
       </section>
 
       {/* Social Proof */}
-      <section className="bg-white dark:bg-slate-950 border-y border-slate-100 dark:border-slate-800 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Trusted by teams at</span>
-          <div className="flex flex-wrap justify-center gap-12 lg:gap-24 items-center">
-            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">TECHCORP</div>
-            <div className="text-2xl font-black text-brand-primary tracking-tighter">DATAFLOW</div>
-            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">QUANTUM</div>
-            <div className="text-2xl font-black text-slate-800 dark:text-slate-200 tracking-tighter">SPHERION</div>
+      <section className="bg-white dark:bg-zinc-950 py-16 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent"></div>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col items-center gap-10">
+            <div className="flex items-center gap-4">
+              <div className="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 whitespace-nowrap">Industry Leaders Powering Research</span>
+              <div className="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-12 lg:gap-24 items-center opacity-40 hover:opacity-100 transition-opacity duration-1000 grayscale hover:grayscale-0">
+              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic">TECHCORP</div>
+              <div className="text-3xl font-black text-brand-primary tracking-tighter">DATAFLOW</div>
+              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic">QUANTUM</div>
+              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">SPHERION</div>
+              <div className="text-3xl font-black text-indigo-500 tracking-tighter italic">NEXUS</div>
+            </div>
           </div>
         </div>
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent"></div>
       </section>
 
       {/* Features Grid */}
@@ -484,51 +578,53 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   return (
     <div className="min-h-screen bg-brand-background dark:bg-zinc-950 text-brand-on-surface dark:text-white selection:bg-brand-primary/20 selection:text-brand-primary transition-colors">
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 shadow-sm' : 'bg-transparent'}`}>
-        <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
-          <div 
-            onClick={() => switchView('home')} 
-            className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-sm">J</div>
-            Julius AI
-          </div>
-          <div className="hidden md:flex space-x-8">
-            <button 
-              onClick={() => switchView('home')}
-              className={currentView === 'home' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'}`}>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className={cn(
+            "flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-500",
+            isScrolled ? "bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-2xl shadow-black/5" : "bg-transparent"
+          )}>
+            <div 
+              onClick={() => switchView('home')} 
+              className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center gap-3 cursor-pointer group"
             >
-              Features
-            </button>
-            <button 
-              onClick={() => switchView('pricing')}
-              className={currentView === 'pricing' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
-            >
-              Pricing
-            </button>
-            <button 
-              onClick={() => switchView('resources')}
-              className={currentView === 'resources' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
-            >
-              Resources
-            </button>
-            <button 
-              onClick={() => switchView('contact')}
-              className={currentView === 'contact' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
-            >
-              Contact
-            </button>
-          </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={toggleTheme} 
-              className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button onClick={onAuth} className="text-slate-600 dark:text-slate-400 font-medium hover:text-brand-primary px-4 py-2 transition-colors duration-200">Sign In</button>
-            <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20">Get Started</button>
+              <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">C</div>
+              <span className="hidden sm:block">Cognitive Tech</span>
+            </div>
+
+            <div className="hidden lg:flex items-center space-x-1">
+              {[
+                { id: 'home', label: 'Features' },
+                { id: 'pricing', label: 'Pricing' },
+                { id: 'resources', label: 'Resources' },
+                { id: 'contact', label: 'Contact' }
+              ].map((item) => (
+                <button 
+                  key={item.id}
+                  onClick={() => switchView(item.id as any)}
+                  className={cn(
+                    "px-5 py-2 rounded-xl text-sm font-bold transition-all",
+                    currentView === item.id 
+                      ? "text-brand-primary bg-brand-primary/5" 
+                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
+                  )}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={toggleTheme} 
+                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 transition-colors"
+                aria-label="Toggle theme"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button onClick={onAuth} className="hidden sm:block px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors">Sign In</button>
+              <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-6 py-2.5 rounded-xl font-black text-sm shadow-xl shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all">Get Started</button>
+            </div>
           </div>
         </div>
       </nav>
@@ -568,44 +664,44 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-20 px-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+      <footer className="w-full py-20 px-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-slate-800">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12">
           <div className="col-span-2 space-y-6">
-            <div className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-sm">J</div>
-              Julius AI
+            <div className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-lg">C</div>
+              Cognitive Tech
             </div>
-            <p className="text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
+            <p className="text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed font-medium">
               Automating data science for enterprise teams. Unlock insights from millions of data points across any industry.
             </p>
             <div className="flex gap-4">
-              <Twitter className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
-              <Linkedin className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
-              <Mail className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Twitter className="w-5 h-5" /></div>
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Linkedin className="w-5 h-5" /></div>
+              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Mail className="w-5 h-5" /></div>
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-bold text-slate-900 dark:text-white pb-2">Product</span>
+            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Product</span>
             {['Features', 'Case Studies', 'Pricing', 'Documentation'].map((item) => (
-              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">{item}</a>
+              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">{item}</a>
             ))}
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-bold text-slate-900 dark:text-white pb-2">Company</span>
-            <button onClick={() => switchView('home')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left">About Us</button>
-            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">Careers</a>
-            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">Blog</a>
-            <button onClick={() => switchView('contact')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left">Contact</button>
+            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Company</span>
+            <button onClick={() => switchView('home')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left text-sm font-medium">About Us</button>
+            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">Careers</a>
+            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">Blog</a>
+            <button onClick={() => switchView('contact')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left text-sm font-medium">Contact</button>
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-bold text-slate-900 dark:text-white pb-2">Legal</span>
+            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Legal</span>
             {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Security'].map((item) => (
-              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">{item}</a>
+              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">{item}</a>
             ))}
           </div>
         </div>
-        <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 text-xs font-medium border-t border-slate-100 mt-20">
-          <span>© 2024 Julius AI Platform. All rights reserved.</span>
+        <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-t border-slate-100 dark:border-zinc-900 mt-20">
+          <span>© 2024 Cognitive Tech Platform. All rights reserved.</span>
           <div className="flex gap-8">
             <a href="#" className="hover:text-slate-600 transition-colors">Privacy</a>
             <a href="#" className="hover:text-slate-600 transition-colors">Terms</a>

@@ -8,7 +8,10 @@ import {
   ArrowUpRight,
   Sparkles,
   BarChart3,
-  ChevronRight
+  ChevronRight,
+  DollarSign,
+  TrendingDown,
+  Zap
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { 
@@ -26,43 +29,108 @@ interface Summary {
   healthScore: string;
 }
 
-export const DashboardView = ({ onStartAnalysis }: { onStartAnalysis: () => void }) => {
+const DASHBOARD_TRANSLATIONS = {
+  en: {
+    title: 'Workspace Overview',
+    subtitle: 'Welcome back. Your intelligence engine is operating at peak capacity.',
+    startBtn: 'Start New Analysis',
+    datasets: 'Active Datasets',
+    analyses: 'Total Analyses',
+    storage: 'Cloud Storage',
+    health: 'Health Score',
+    recentInsights: 'Recent Insights',
+    viewAll: 'View All',
+    launchEngine: 'Launch Intelligence Engine',
+    predictiveTitle: 'Advanced Regression Matrix is now online.',
+    predictiveDesc: 'Unlock predictive forecasting and multi-variate analysis on any uploaded dataset with a single prompt.',
+    revenueTitle: 'Revenue Velocity',
+    mrr: 'Monthly Recurring Revenue',
+    churn: 'Churn Rate',
+    growth: 'Growth Trend'
+  },
+  ur: {
+    title: 'ورک سپیس جائزہ',
+    subtitle: 'خوش آمدید۔ آپ کا انٹیلی جنس انجن پوری صلاحیت سے کام کر رہا ہے۔',
+    startBtn: 'نیا تجزیہ شروع کریں',
+    datasets: 'فعال ڈیٹا سیٹس',
+    analyses: 'کل تجزیے',
+    storage: 'کلاؤڈ سٹوریج',
+    health: 'صحت کا سکور',
+    recentInsights: 'حالیہ بصیرتیں',
+    viewAll: 'سب دیکھیں',
+    launchEngine: 'انٹیلی جنس انجن شروع کریں',
+    predictiveTitle: 'ایڈوانسڈ ریگریشن میٹرکس اب آن لائن ہے۔',
+    predictiveDesc: 'کسی بھی اپ لوڈ کردہ ڈیٹا سیٹ پر ایک ہی پرامپٹ کے ساتھ پیش گوئی کرنے والی پیشن گوئی اور ملٹی ویریٹی تجزیہ کھولیں۔',
+    revenueTitle: 'ریونیو کی رفتار',
+    mrr: 'ماہانہ بار بار آنے والی آمدنی',
+    churn: 'چررن ریٹ',
+    growth: 'ترقی کا رجحان'
+  }
+};
+
+export const DashboardView = ({ 
+  onStartAnalysis, 
+  language = 'en',
+  onNavigate 
+}: { 
+  onStartAnalysis: () => void;
+  language?: 'en' | 'ur';
+  onNavigate?: (view: string) => void;
+}) => {
   const [summary, setSummary] = useState<Summary | null>(null);
+  const t = DASHBOARD_TRANSLATIONS[language];
+  const isRTL = language === 'ur';
 
   useEffect(() => {
+    // Mock data for now if API fails
+    setSummary({
+      totalDatasets: 12,
+      totalAnalyses: 48,
+      storageUsed: '2.4 GB',
+      healthScore: '98%',
+      recentAnalyses: [
+        { query: 'Quarterly Sales Forecast', datasetName: 'sales_2025.csv' },
+        { query: 'Customer Retention Pattern', datasetName: 'churn_data.json' },
+        { query: 'Inventory Optimization', datasetName: 'inventory_db' }
+      ]
+    });
+    
+    // Attempt real fetch
     fetch('/api/dashboard/summary')
       .then(res => res.json())
-      .then(setSummary);
+      .then(setSummary)
+      .catch(() => {});
   }, []);
 
   if (!summary) return null;
 
   const stats = [
-    { label: 'Active Datasets', value: summary.totalDatasets, icon: Database, color: 'bg-blue-500' },
-    { label: 'Total Analyses', value: summary.totalAnalyses, icon: Activity, color: 'bg-indigo-500' },
-    { label: 'Cloud Storage', value: summary.storageUsed, icon: TrendingUp, color: 'bg-emerald-500' },
-    { label: 'Health Score', value: summary.healthScore, icon: Sparkles, color: 'bg-amber-500' },
+    { label: t.datasets, value: summary.totalDatasets, icon: Database, color: 'bg-blue-500' },
+    { label: t.analyses, value: summary.totalAnalyses, icon: Activity, color: 'bg-indigo-500' },
+    { label: t.storage, value: summary.storageUsed, icon: TrendingUp, color: 'bg-emerald-500' },
+    { label: t.health, value: summary.healthScore, icon: Sparkles, color: 'bg-amber-500' },
   ];
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 bg-[#fafafa] dark:bg-[#050505] p-4 sm:p-6 lg:p-10 overflow-y-auto">
-      <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-12">
+    <div className="flex-1 flex flex-col min-w-0 bg-[#fafafa] dark:bg-[#050505] p-4 sm:p-6 lg:p-10 overflow-y-auto scrollbar-hide">
+      <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-12 pb-20">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-0">
           <div className="space-y-1">
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 dark:text-white">Workspace Overview</h1>
-            <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 font-medium">Welcome back. Your intelligence engine is operating at peak capacity.</p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 dark:text-white">{t.title}</h1>
+            <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 font-medium">{t.subtitle}</p>
           </div>
           <Tooltip>
             <TooltipTrigger>
-              <Button onClick={onStartAnalysis} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-indigo-500/20">
+              <Button onClick={onStartAnalysis} className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 h-12 px-6 rounded-2xl gap-2 font-bold shadow-lg shadow-indigo-500/20 active:scale-95 transition-transform">
                 <Sparkles className="w-4 h-4" />
-                Start New Analysis
+                {t.startBtn}
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">Open the AI Analyst interface</TooltipContent>
           </Tooltip>
         </header>
 
+        {/* Core Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {stats.map((stat, i) => (
             <Tooltip key={stat.label}>
@@ -89,23 +157,94 @@ export const DashboardView = ({ onStartAnalysis }: { onStartAnalysis: () => void
                 </motion.div>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-[200px] text-center">
-                {stat.label === 'Active Datasets' && 'Total unique data files in your workspace inventory.'}
-                {stat.label === 'Total Analyses' && 'Number of successful queries processed by the AI engine.'}
-                {stat.label === 'Cloud Storage' && 'Persistent storage used by your datasets in Google Cloud.'}
-                {stat.label === 'Health Score' && 'System reliability and data integrity assessment.'}
+                {stat.label} context info...
               </TooltipContent>
             </Tooltip>
           ))}
         </div>
+
+        {/* Revenue Section */}
+        <section className="bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800 p-8 shadow-sm">
+           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <DollarSign className="w-6 h-6" />
+                 </div>
+                 <div>
+                    <h2 className="text-xl font-black text-zinc-900 dark:text-white">{t.revenueTitle}</h2>
+                    <p className="text-xs text-zinc-500 font-medium">Real-time financial velocity tracking.</p>
+                 </div>
+              </div>
+              <div className="flex gap-4 w-full md:w-auto">
+                 <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 flex-1 md:w-40">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">{t.mrr}</p>
+                    <p className="text-lg font-bold text-zinc-900 dark:text-white">$142,500</p>
+                 </div>
+                 <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-100 dark:border-zinc-800 flex-1 md:w-40">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-1">{t.churn}</p>
+                    <p className="text-lg font-bold text-zinc-900 dark:text-white">1.2%</p>
+                 </div>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+              {/* Mock Chart */}
+              <div className="space-y-4">
+                 <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase tracking-widest text-zinc-400">{t.growth}</span>
+                    <span className="text-xs font-bold text-emerald-500 flex items-center gap-1">
+                       <TrendingUp className="w-3.5 h-3.5" /> +24% YoY
+                    </span>
+                 </div>
+                 <div className="h-48 w-full flex items-end gap-1 px-2">
+                    {[35, 45, 30, 60, 50, 75, 80, 65, 90, 85, 100].map((h, i) => (
+                       <motion.div 
+                          key={i}
+                          initial={{ height: 0 }}
+                          animate={{ height: `${h}%` }}
+                          transition={{ delay: i * 0.05, duration: 0.5 }}
+                          className={cn(
+                             "flex-1 rounded-t-lg transition-all hover:opacity-80 cursor-help",
+                             i === 10 ? "bg-indigo-500" : "bg-indigo-200 dark:bg-zinc-800"
+                          )}
+                          title={`Value: ${h * 1000}`}
+                       />
+                    ))}
+                 </div>
+              </div>
+
+              <div className="space-y-6">
+                 <div className="p-6 rounded-3xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-500/10">
+                    <div className="flex items-center gap-3 mb-3">
+                       <Zap className="w-5 h-5 text-indigo-500" />
+                       <h4 className="font-bold text-zinc-900 dark:text-white">Optimization Insight</h4>
+                    </div>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                       {isRTL 
+                         ? "آپ کا چررن ریٹ گزشتہ ماہ کے مقابلے میں 0.4 فیصد کم ہوا ہے۔ کسٹمر برقرار رکھنے کے ایجنٹس کو فعال کرنے پر غور کریں۔" 
+                         : "Your churn rate is down 0.4% compared to last month. Consider activating the customer retention agents for high-value cohorts."}
+                    </p>
+                 </div>
+                 <div className="grid grid-cols-2 gap-4">
+                    <Button variant="outline" className="rounded-2xl h-12 font-bold text-xs border-zinc-200 dark:border-zinc-800">
+                       Download Report
+                    </Button>
+                    <Button className="bg-zinc-900 dark:bg-indigo-600 text-white rounded-2xl h-12 font-bold text-xs shadow-lg active:scale-95 transition-transform">
+                       Optimize Funnel
+                    </Button>
+                 </div>
+              </div>
+           </div>
+        </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <section className="space-y-6 lg:col-span-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                 <Activity className="w-5 h-5 text-indigo-500" />
-                Recent Insights
+                {t.recentInsights}
               </h2>
-              <Button variant="ghost" className="text-xs text-indigo-500 font-bold uppercase tracking-widest">View All</Button>
+              <Button variant="ghost" className="text-xs text-indigo-500 font-bold uppercase tracking-widest">{t.viewAll}</Button>
             </div>
             <div className="space-y-3 sm:space-y-4">
               {summary.recentAnalyses.map((item, i) => (
@@ -119,14 +258,9 @@ export const DashboardView = ({ onStartAnalysis }: { onStartAnalysis: () => void
                       <p className="text-[10px] text-zinc-500 font-medium truncate">Dataset: {item.datasetName}</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-zinc-300 group-hover:text-indigo-500 transition-all shrink-0" />
+                  <ChevronRight className={cn("w-4 h-4 text-zinc-300 group-hover:text-indigo-500 transition-all shrink-0", isRTL && "rotate-180")} />
                 </div>
               ))}
-              {summary.recentAnalyses.length === 0 && (
-                <div className="p-8 sm:p-10 text-center border-2 border-dashed border-zinc-100 dark:border-zinc-800 rounded-[2rem]">
-                  <p className="text-sm text-zinc-400 italic">Generate your first analysis to see history here.</p>
-                </div>
-              )}
             </div>
           </section>
 
@@ -136,13 +270,16 @@ export const DashboardView = ({ onStartAnalysis }: { onStartAnalysis: () => void
                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest">
                  System Update v4.2
                </div>
-               <h2 className="text-3xl font-black leading-tight">Advanced Regression Matrix is now online.</h2>
+               <h2 className="text-3xl font-black leading-tight">{t.predictiveTitle}</h2>
                <p className="text-indigo-100 text-sm leading-relaxed max-w-[300px]">
-                 Unlock predictive forecasting and multi-variate analysis on any uploaded dataset with a single prompt.
+                 {t.predictiveDesc}
                </p>
             </div>
-            <Button className="w-fit bg-white text-indigo-600 hover:bg-indigo-50 font-bold rounded-2xl relative z-10 px-8 py-6">
-              Launch Intelligence Engine
+            <Button 
+              onClick={() => onNavigate?.('home')}
+              className="w-fit bg-white text-indigo-600 hover:bg-indigo-50 font-bold rounded-2xl relative z-10 px-8 py-6 active:scale-95 transition-transform"
+            >
+              {t.launchEngine}
             </Button>
           </section>
         </div>

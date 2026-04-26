@@ -1,10 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({ 
-  apiKey: process.env.GEMINI_API_KEY || '' 
+  apiKey: (import.meta as any).env.VITE_GEMINI_API_KEY || '' 
 });
 
-const DEFAULT_MODEL = "gemini-3-flash-preview";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 
 export async function generateChatResponse(messages: { role: 'user' | 'assistant' | 'system', content: string }[]) {
   try {
