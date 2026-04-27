@@ -14,7 +14,7 @@ interface AuthContextType {
   isAdmin: boolean;
   signOut: () => Promise<void>;
   getToken: () => Promise<string | null>;
-  signInMock: () => void;
+  refreshUser: () => Promise<void>;
   role: 'admin' | 'user';
   status: 'active' | 'loading' | 'unauthenticated';
 }
@@ -34,13 +34,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const mockUserData = localStorage.getItem('mock_user');
-    if (mockUserData) {
-      setUser(JSON.parse(mockUserData));
-      setLoading(false);
-      return;
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -54,9 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   const signOut = async () => {
-    localStorage.removeItem('mock_user');
     await firebaseSignOut(auth);
-    setUser(null);
   };
 
   const getToken = async () => {
@@ -64,16 +55,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return await getIdToken(user);
   };
 
-  const signInMock = () => {
-    const mockUser = {
-      uid: 'demo-user-123',
-      email: 'demo@cognitivetech.ai',
-      displayName: 'Demo Scientist',
-      photoURL: 'https://i.pravatar.cc/150?u=demo',
-      emailVerified: true
-    };
-    localStorage.setItem('mock_user', JSON.stringify(mockUser));
-    setUser(mockUser as any);
+  const refreshUser = async () => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      setUser({ ...auth.currentUser }); // Spread to create a new reference and trigger re-render
+    }
   };
 
   const value = {
@@ -83,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isAdmin,
     signOut,
     getToken,
-    signInMock,
+    refreshUser,
     role: isAdmin ? 'admin' as const : 'user' as const,
     status: loading ? 'loading' as const : (user ? 'active' as const : 'unauthenticated' as const),
   };

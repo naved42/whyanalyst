@@ -2,8 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Camera, Upload, Loader2, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { updateProfile } from 'firebase/auth';
+import { useAuth } from '../hooks/useAuth';
 
 export const ProfileImageUpload = ({ currentPhotoURL }: { currentPhotoURL?: string | null }) => {
+  const { user, getToken, refreshUser } = useAuth();
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(currentPhotoURL || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,9 +30,35 @@ export const ProfileImageUpload = ({ currentPhotoURL }: { currentPhotoURL?: stri
     setPreview(objectUrl);
 
     try {
-      // Mocking upload delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      toast.success("Profile appearance updated (Local only)");
+      if (!user) throw new Error("No user authenticated");
+      
+      const token = await getToken();
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/user/profile-image', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const { url } = await response.json();
+      
+      // Update Firebase Auth profile
+      await updateProfile(user, {
+        photoURL: url
+      });
+
+      // Refresh the user state in context
+      await refreshUser();
+      
+      toast.success("Profile image updated and saved");
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to update profile image");

@@ -23,7 +23,7 @@ import { cn } from '@/src/lib/utils';
 
 export const DatabasesView = () => {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
         <div>

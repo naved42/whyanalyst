@@ -63,7 +63,7 @@ export const DataSourcesView = ({ onUpload, activeDatasetId, setActiveDataset, i
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-[#050505] p-4 sm:p-6 lg:p-10 overflow-y-auto">
-      <div className="max-w-6xl mx-auto w-full space-y-8 sm:space-y-10">
+      <div className="w-full space-y-8 sm:space-y-10">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Data Management</h1>

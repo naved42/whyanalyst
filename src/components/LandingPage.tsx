@@ -20,12 +20,8 @@ import {
   ChevronRight,
   Zap as Sparkles, // Using Zap for Sparkles feel
   LineChart,
-  Moon,
-  Sun
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { useTheme } from '../hooks/useTheme';
-import { cn } from '@/src/lib/utils';
 
 interface LandingPageProps {
   onAuth: () => void;
@@ -34,7 +30,6 @@ interface LandingPageProps {
 export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { theme, toggleTheme } = useTheme();
 
   const switchView = (view: 'home' | 'pricing' | 'resources' | 'contact') => {
     setCurrentView(view);
@@ -52,167 +47,74 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const renderHome = () => (
     <>
       {/* Hero Section */}
-      <section className="relative px-6 py-12 lg:py-32 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20 overflow-visible">
-        {/* Modern Background Grid & Mesh */}
-        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-brand-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-          <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-[150px]"></div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-        </div>
-
+      <section className="px-6 py-12 lg:py-24 w-full flex flex-col lg:flex-row items-center gap-16 relative">
         <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="lg:w-1/2 space-y-10 relative z-10"
-        >
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-brand-primary/20 shadow-xl shadow-brand-primary/5"
-          >
-            <div className="w-2 h-2 rounded-full bg-brand-primary animate-ping"></div>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary">v4.2 Neural Engine Live</span>
-          </motion.div>
-
-          <h1 className="text-6xl lg:text-8xl font-black leading-[0.95] tracking-tight text-gray-900 dark:text-white">
-            Meet your <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-indigo-500 to-purple-600 drop-shadow-sm">AI Data Scientist.</span>
-          </h1>
-
-          <p className="text-xl text-brand-surface-variant max-w-lg leading-relaxed font-medium">
-            Julius connects your data silos into a single, intelligent workspace. Ask questions, clean datasets, and build predictive models with professional-grade rigor—all in seconds.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-5 pt-6">
-            <button 
-              onClick={onAuth} 
-              className="w-full sm:w-auto bg-brand-primary text-brand-on-primary px-10 py-5 rounded-2xl font-black text-lg shadow-2xl shadow-brand-primary/40 hover:-translate-y-1 active:scale-95 transition-all relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12"></div>
-              Get Started Free
-            </button>
-            <button 
-              onClick={() => {
-                localStorage.setItem('mock_user', JSON.stringify({
-                  uid: 'demo-user-123',
-                  email: 'demo@cognitivetech.ai',
-                  displayName: 'Demo Scientist',
-                  photoURL: 'https://i.pravatar.cc/150?u=demo',
-                  emailVerified: true
-                }));
-                window.location.reload();
-              }} 
-              className="w-full sm:w-auto px-10 py-5 rounded-2xl font-black text-lg bg-white dark:bg-zinc-900 text-brand-primary border-2 border-brand-primary/20 shadow-xl shadow-black/5 hover:-translate-y-1 active:scale-95 transition-all"
-            >
-              Demo Access
-            </button>
-          </div>
-
-          <div className="flex items-center gap-6 pt-12 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 overflow-hidden shadow-lg">
-                  <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
-                </div>
-              ))}
-              <div className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-900 bg-brand-primary flex items-center justify-center text-[10px] font-bold text-white shadow-lg">+12k</div>
-            </div>
-            <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
-              Trusted by <span className="text-slate-900 dark:text-white">12,000+</span> data scientists worldwide.
-            </p>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, x: 50 }}
+          initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          className="lg:w-1/2 space-y-8"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="text-xs font-bold uppercase tracking-wider">The Future of Data Science</span>
+          </div>
+          <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-gray-900">
+            Your <span className="text-gradient">WhyAnalyst</span> is here.
+          </h1>
+          <p className="text-lg text-brand-surface-variant max-w-lg leading-relaxed">
+            Connect your data sources and get professional-grade insights in seconds. Ask questions in plain English, and Julius handles the complex modeling, cleaning, and visualization.
+          </p>
+          <div className="flex flex-wrap items-center gap-4 pt-4">
+            <button onClick={onAuth} className="bg-brand-primary text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all">
+              Start Analyzing Free
+            </button>
+            <button onClick={onAuth} className="px-8 py-4 rounded-xl font-bold text-lg border border-slate-200 hover:bg-slate-50 transition-all flex items-center gap-2 group">
+              View Live Demo
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
           className="lg:w-1/2 w-full relative"
         >
-          {/* Main Dashboard Preview Container */}
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-indigo-600 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-            <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/50 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-3">
-              <div className="rounded-[2rem] overflow-hidden relative">
-                <img 
-                  alt="Analysis Interface Preview" 
-                  className="w-full object-cover aspect-[4/3] shadow-inner transform group-hover:scale-[1.02] transition-transform duration-700" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZhGCM9_CIfm4TgtM_FA1tKpgjO1D--6bUtdTCuJJGKRNUshwFyftqE0Z3kbd8BHQtyyk6Rg9CfpGbbjgsRX8sh_-ujf-apq_DFo1emN5-tySrHdCn1sXYh4yaLxtjC2RkGoyVR__XUlJWvnj10_f1tS9B5sfWeov-NJwmHnpgrhD2RU4Pbo97FBaECT51rneVWrCvWN82hywqDJYCZ0pEQ9u27i98ncCSTwmlz1aWHzc9ws2l6-TL7SAPLmLe6U01Q6iMI2Dca7E"
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-brand-primary/20 via-transparent to-white/10 pointer-events-none"></div>
-              </div>
-
-              {/* Floating UI Elements */}
-              <motion.div 
-                animate={{ y: [0, -10, 0] }} 
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-10 -left-10 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 hidden lg:block"
-              >
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                      <TrendingUp className="w-6 h-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase text-slate-400">Growth Forecast</p>
-                      <p className="text-lg font-bold text-slate-900 dark:text-white">+24.5%</p>
-                   </div>
-                </div>
-              </motion.div>
-
-              <motion.div 
-                animate={{ y: [0, 10, 0] }} 
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                className="absolute bottom-20 -right-8 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 hidden lg:block"
-              >
-                <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-                      <Zap className="w-6 h-6" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-black uppercase text-slate-400">Processing Speed</p>
-                      <p className="text-lg font-bold text-slate-900 dark:text-white">0.8s / epoch</p>
-                   </div>
-                </div>
-              </motion.div>
-            </div>
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 bg-white p-2">
+            <img 
+              alt="Analysis Interface Preview" 
+              className="w-full rounded-xl object-cover aspect-video shadow-inner" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZhGCM9_CIfm4TgtM_FA1tKpgjO1D--6bUtdTCuJJGKRNUshwFyftqE0Z3kbd8BHQtyyk6Rg9CfpGbbjgsRX8sh_-ujf-apq_DFo1emN5-tySrHdCn1sXYh4yaLxtjC2RkGoyVR__XUlJWvnj10_f1tS9B5sfWeov-NJwmHnpgrhD2RU4Pbo97FBaECT51rneVWrCvWN82hywqDJYCZ0pEQ9u27i98ncCSTwmlz1aWHzc9ws2l6-TL7SAPLmLe6U01Q6iMI2Dca7E"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/10 to-transparent pointer-events-none"></div>
           </div>
+          {/* Decorative blurs */}
+          <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-primary/20 blur-3xl -z-10 rounded-full animate-pulse"></div>
+          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-400/20 blur-3xl -z-10 rounded-full"></div>
         </motion.div>
       </section>
 
       {/* Social Proof */}
-      <section className="bg-white dark:bg-zinc-950 py-16 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent"></div>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col items-center gap-10">
-            <div className="flex items-center gap-4">
-              <div className="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 whitespace-nowrap">Industry Leaders Powering Research</span>
-              <div className="h-px w-12 bg-slate-200 dark:bg-slate-800"></div>
-            </div>
-            <div className="flex flex-wrap justify-center gap-12 lg:gap-24 items-center opacity-40 hover:opacity-100 transition-opacity duration-1000 grayscale hover:grayscale-0">
-              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic">TECHCORP</div>
-              <div className="text-3xl font-black text-brand-primary tracking-tighter">DATAFLOW</div>
-              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter italic">QUANTUM</div>
-              <div className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">SPHERION</div>
-              <div className="text-3xl font-black text-indigo-500 tracking-tighter italic">NEXUS</div>
-            </div>
+      <section className="bg-white border-y border-slate-100 py-12">
+        <div className="w-full px-6 flex flex-col md:flex-row items-center justify-between gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Trusted by teams at</span>
+          <div className="flex flex-wrap justify-center gap-12 lg:gap-24 items-center">
+            <div className="text-2xl font-black text-slate-800 tracking-tighter">TECHCORP</div>
+            <div className="text-2xl font-black text-brand-primary tracking-tighter">DATAFLOW</div>
+            <div className="text-2xl font-black text-slate-800 tracking-tighter">QUANTUM</div>
+            <div className="text-2xl font-black text-slate-800 tracking-tighter">SPHERION</div>
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent"></div>
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="px-6 py-24 max-w-7xl mx-auto">
+      <section id="features" className="px-6 py-24 w-full">
         <div className="text-center mb-16 space-y-4">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold text-gray-900 dark:text-white"
+            className="text-4xl font-bold text-gray-900"
           >
             Precision Tools for Modern Teams
           </motion.h2>
@@ -223,36 +125,36 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
             <div className="bg-brand-primary/10 text-brand-primary w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <Cloud className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Connect Anything</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Connect Anything</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Seamlessly ingest data from CSV, Excel, SQL databases, and cloud storage providers with one secure click.
             </p>
           </motion.div>
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
-            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
+            <div className="bg-blue-50 text-blue-600 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <MessageSquare className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Natural Language</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Natural Language</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Ask questions like "Which channel had the highest ROI?" and get instant complex data interpretations.
             </p>
           </motion.div>
           <motion.div 
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900 p-10 rounded-2xl border border-slate-100 dark:border-slate-800 hover:shadow-xl hover:border-brand-primary/20 transition-all"
+            className="bg-white p-10 rounded-2xl border border-slate-100 hover:shadow-xl hover:border-brand-primary/20 transition-all"
           >
-            <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
+            <div className="bg-emerald-50 text-emerald-600 w-14 h-14 flex items-center justify-center rounded-xl mb-6">
               <BarChart className="w-7 h-7" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Automated Visuals</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Automated Visuals</h3>
             <p className="text-brand-surface-variant leading-relaxed">
               Beautiful, publication-ready charts and reports generated automatically to tell your data's true story.
             </p>
@@ -262,7 +164,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
 
       {/* Use Cases / Industries */}
       <section id="use-cases" className="bg-slate-900 py-24 text-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="w-full px-6">
           <div className="flex flex-col lg:flex-row gap-20 items-center">
             <div className="lg:w-2/5 space-y-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/80 border border-white/10">
@@ -344,23 +246,23 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   const renderPricing = () => (
-    <section className="px-6 py-24 max-w-7xl mx-auto">
+    <section className="px-6 py-24 w-full">
       <div className="text-center mb-16 space-y-4">
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Scalable Intelligence for Every Scope</h2>
+        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">Scalable Intelligence for Every Scope</h2>
         <p className="text-brand-surface-variant text-lg max-w-2xl mx-auto">
           Transparent pricing for high-performance AI tools. Whether you're a solo researcher or an enterprise team, we have a plan that evolves with you.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
         {/* Free */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white border border-slate-100 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Free</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Free</h3>
             <p className="text-brand-surface-variant text-sm">For curious individuals and enthusiasts.</p>
           </div>
           <div className="mb-8">
-            <span className="text-5xl font-bold text-gray-900 dark:text-white">$0</span>
-            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ forever</span>
+            <span className="text-5xl font-bold text-gray-900">$0</span>
+            <span className="text-slate-400 font-medium ml-2">/ forever</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {['100 queries / month', 'Standard model access', '1GB Workspace storage'].map((item, i) => (
@@ -370,22 +272,22 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </li>
             ))}
           </ul>
-          <button onClick={onAuth} className="w-full py-4 border border-slate-200 dark:border-slate-700 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white transition-all active:scale-95">
+          <button onClick={onAuth} className="w-full py-4 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95">
             Join Community
           </button>
         </div>
         {/* Pro */}
-        <div className="bg-white dark:bg-slate-900 border-2 border-brand-primary p-10 rounded-3xl flex flex-col shadow-2xl relative transform lg:-translate-y-6">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-primary text-brand-on-primary px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+        <div className="bg-white border-2 border-brand-primary p-10 rounded-3xl flex flex-col shadow-2xl relative transform lg:-translate-y-6">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-primary text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
             Most Popular
           </div>
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pro</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Pro</h3>
             <p className="text-brand-surface-variant text-sm">For power users and data professionals.</p>
           </div>
           <div className="mb-8">
-            <span className="text-5xl font-bold text-gray-900 dark:text-white">$29</span>
-            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ month</span>
+            <span className="text-5xl font-bold text-gray-900">$29</span>
+            <span className="text-slate-400 font-medium ml-2">/ month</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {[
@@ -401,19 +303,19 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </li>
             ))}
           </ul>
-          <button onClick={onAuth} className="w-full py-4 bg-brand-primary text-brand-on-primary rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/30 hover:opacity-90 transition-all active:scale-95">
+          <button onClick={onAuth} className="w-full py-4 bg-brand-primary text-white rounded-xl font-bold text-lg shadow-xl shadow-brand-primary/30 hover:opacity-90 transition-all active:scale-95">
             Go Premium
           </button>
         </div>
         {/* Enterprise */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
+        <div className="bg-white border border-slate-100 p-10 rounded-3xl flex flex-col shadow-sm transition-all hover:shadow-md">
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Enterprise</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
             <p className="text-brand-surface-variant text-sm">For large teams and high-compliance labs.</p>
           </div>
           <div className="mb-8">
-            <span className="text-4xl font-bold text-gray-900 dark:text-white">Custom</span>
-            <span className="text-slate-400 dark:text-slate-500 font-medium ml-2">/ year</span>
+            <span className="text-4xl font-bold text-gray-900">Custom</span>
+            <span className="text-slate-400 font-medium ml-2">/ year</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
             {['Dedicated Instance', 'SAML/SSO Integration', 'Unlimited storage', '24/7 dedicated support'].map((item, i) => (
@@ -432,9 +334,9 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   const renderResources = () => (
-    <section className="px-6 py-24 max-w-7xl mx-auto space-y-16">
+    <section className="px-6 py-24 w-full space-y-16">
       <div className="text-center space-y-4">
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">How can we help you today?</h2>
+        <h2 className="text-4xl font-bold text-gray-900 tracking-tight">How can we help you today?</h2>
         <p className="text-brand-surface-variant text-lg max-w-2xl mx-auto">
           Explore our extensive documentation, detailed case studies, and community-driven guides to master the Cognitive AI platform.
         </p>
@@ -447,7 +349,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           { title: 'Case Studies', desc: 'Real-world success stories from partners.', icon: LineChart },
           { title: 'Community', desc: 'Join the discussion with other experts.', icon: MessageSquare }
         ].map((item, i) => (
-          <div key={i} className="group p-8 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl shadow-sm hover:border-brand-primary/20 hover:shadow-md transition-all cursor-pointer">
+          <div key={i} className="group p-8 bg-white border border-slate-100 rounded-3xl shadow-sm hover:border-brand-primary/20 hover:shadow-md transition-all cursor-pointer">
             <div className="w-12 h-12 bg-brand-primary/10 text-brand-primary rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <item.icon className="w-6 h-6" />
             </div>
@@ -460,31 +362,31 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   const renderContact = () => (
-    <section className="px-6 py-24 max-w-7xl mx-auto min-h-[80vh]">
+    <section className="px-6 py-24 w-full min-h-[80vh]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
         {/* Left Column: Branding & Form */}
         <div className="lg:col-span-7 space-y-12">
           <header className="space-y-4">
             <span className="text-brand-primary font-bold text-xs uppercase tracking-widest px-3 py-1 bg-brand-primary/10 rounded-full">Contact Us</span>
-            <h1 className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.1]">Let's build the future of intelligence together.</h1>
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 leading-[1.1]">Let's build the future of intelligence together.</h1>
             <p className="text-lg text-brand-surface-variant max-w-xl">Our team of experts is ready to help you integrate enterprise-grade AI into your existing data workflows.</p>
           </header>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm">
+          <div className="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm">
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Full Name</label>
-                  <input className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="John Doe" type="text"/>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Full Name</label>
+                  <input className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400" placeholder="John Doe" type="text"/>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Email Address</label>
-                  <input className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white" placeholder="john@company.ai" type="email"/>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
+                  <input className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400" placeholder="john@company.ai" type="email"/>
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Inquiry Type</label>
-                <select className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all text-slate-800 dark:text-slate-200">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Inquiry Type</label>
+                <select className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all text-slate-800">
                   <option>Sales Inquiry</option>
                   <option>Technical Support</option>
                   <option>Partnership Proposal</option>
@@ -492,13 +394,13 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Message</label>
-                <textarea className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 dark:text-white resize-none h-40" placeholder="How can our technical team assist your workspace today?"></textarea>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Message</label>
+                <textarea className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary outline-none transition-all placeholder:text-slate-400 resize-none h-40" placeholder="How can our technical team assist your workspace today?"></textarea>
               </div>
               <button 
                 type="button"
                 onClick={onAuth}
-                className="w-full md:w-auto bg-brand-primary text-brand-on-primary px-10 py-4 rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-brand-primary/20"
+                className="w-full md:w-auto bg-brand-primary text-white px-10 py-4 rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-brand-primary/20"
               >
                 Send Message
               </button>
@@ -511,24 +413,24 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           <div className="space-y-8">
             <div className="grid grid-cols-1 gap-4">
               {/* Email Card */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
                 <div className="w-12 h-12 bg-brand-primary/10 rounded-xl flex items-center justify-center shrink-0 text-brand-primary">
                   <Mail className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1 dark:text-white">Email Our Team</h4>
+                  <h4 className="font-bold text-lg mb-1">Email Our Team</h4>
                   <p className="text-brand-surface-variant text-sm">hello@cognitivetech.ai</p>
                   <p className="text-brand-surface-variant text-sm">support@cognitivetech.ai</p>
                 </div>
               </div>
 
               {/* Social Card */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
-                <div className="w-12 h-12 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center shrink-0 text-blue-600 dark:text-blue-400">
+              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+                <div className="w-12 h-12 bg-blue-50/50 rounded-xl flex items-center justify-center shrink-0 text-blue-600">
                   <Globe className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1 dark:text-white">Stay Connected</h4>
+                  <h4 className="font-bold text-lg mb-1">Stay Connected</h4>
                   <div className="flex gap-4 mt-2">
                     <Twitter className="w-5 h-5 text-slate-400 hover:text-brand-primary cursor-pointer" />
                     <Linkedin className="w-5 h-5 text-slate-400 hover:text-brand-primary cursor-pointer" />
@@ -537,12 +439,12 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
               </div>
 
               {/* Office Card */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
-                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+              <div className="bg-white border border-slate-100 p-6 rounded-3xl flex items-start gap-5 group hover:border-brand-primary/20 transition-all">
+                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0 text-emerald-600">
                   <Globe className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg mb-1 dark:text-white">Global HQ</h4>
+                  <h4 className="font-bold text-lg mb-1">Global HQ</h4>
                   <p className="text-brand-surface-variant text-sm">450 Science Park Way, Suite 200</p>
                   <p className="text-brand-surface-variant text-sm">Palo Alto, CA 94304</p>
                 </div>
@@ -576,55 +478,46 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   return (
-    <div className="min-h-screen bg-brand-background dark:bg-zinc-950 text-brand-on-surface dark:text-white selection:bg-brand-primary/20 selection:text-brand-primary transition-colors">
+    <div className="min-h-screen bg-brand-background text-brand-on-surface selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-3' : 'py-6'}`}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className={cn(
-            "flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-500",
-            isScrolled ? "bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-2xl shadow-black/5" : "bg-transparent"
-          )}>
-            <div 
-              onClick={() => switchView('home')} 
-              className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white flex items-center gap-3 cursor-pointer group"
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm' : 'bg-transparent'}`}>
+        <div className="flex items-center justify-between px-6 py-4 w-full">
+          <div 
+            onClick={() => switchView('home')} 
+            className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-sm">W</div>
+            WhyAnalyst
+          </div>
+          <div className="hidden md:flex space-x-8">
+            <button 
+              onClick={() => switchView('home')}
+              className={currentView === 'home' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
             >
-              <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">C</div>
-              <span className="hidden sm:block">Cognitive Tech</span>
-            </div>
-
-            <div className="hidden lg:flex items-center space-x-1">
-              {[
-                { id: 'home', label: 'Features' },
-                { id: 'pricing', label: 'Pricing' },
-                { id: 'resources', label: 'Resources' },
-                { id: 'contact', label: 'Contact' }
-              ].map((item) => (
-                <button 
-                  key={item.id}
-                  onClick={() => switchView(item.id as any)}
-                  className={cn(
-                    "px-5 py-2 rounded-xl text-sm font-bold transition-all",
-                    currentView === item.id 
-                      ? "text-brand-primary bg-brand-primary/5" 
-                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
-                  )}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={toggleTheme} 
-                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 transition-colors"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              <button onClick={onAuth} className="hidden sm:block px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors">Sign In</button>
-              <button onClick={onAuth} className="bg-brand-primary text-brand-on-primary px-6 py-2.5 rounded-xl font-black text-sm shadow-xl shadow-brand-primary/20 hover:scale-105 active:scale-95 transition-all">Get Started</button>
-            </div>
+              Features
+            </button>
+            <button 
+              onClick={() => switchView('pricing')}
+              className={currentView === 'pricing' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
+            >
+              Pricing
+            </button>
+            <button 
+              onClick={() => switchView('resources')}
+              className={currentView === 'resources' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
+            >
+              Resources
+            </button>
+            <button 
+              onClick={() => switchView('contact')}
+              className={currentView === 'contact' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-slate-600 dark:text-slate-400 hover:text-brand-primary transition-colors duration-200"}
+            >
+              Contact
+            </button>
+          </div>
+          <div className="flex items-center gap-4">
+            <button onClick={onAuth} className="text-slate-600 dark:text-slate-400 font-medium hover:text-brand-primary px-4 py-2 transition-colors duration-200">Sign In</button>
+            <button onClick={onAuth} className="bg-brand-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20">Get Started</button>
           </div>
         </div>
       </nav>
@@ -646,15 +539,15 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         </AnimatePresence>
 
         {/* Final CTA - Common for all pages */}
-        <section className="px-6 py-24 max-w-7xl mx-auto">
+        <section className="px-6 py-24 w-full">
           <div className="bg-gradient-to-br from-brand-primary to-blue-600 p-12 lg:p-24 rounded-[3rem] text-center text-white relative overflow-hidden shadow-3xl">
             <div className="relative z-10 space-y-8 max-w-3xl mx-auto py-8">
               <h2 className="text-5xl lg:text-6xl font-bold leading-tight">Ready to unlock your data's full potential?</h2>
               <p className="text-lg opacity-80 leading-relaxed">
-                Join over 50,000 analysts and data scientists using Julius AI to accelerate their research and automate decision-making.
+                Join over 50,000 analysts using WhyAnalyst to accelerate their research and automate decision-making.
               </p>
               <div className="pt-8">
-                <button onClick={onAuth} className="bg-white text-slate-900 px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40">
+                <button onClick={onAuth} className="bg-white text-brand-primary px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40">
                   Start Your Journey Free
                 </button>
               </div>
@@ -664,44 +557,44 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-20 px-6 bg-slate-50 dark:bg-zinc-950 border-t border-slate-200 dark:border-slate-800">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12">
+      <footer className="w-full py-20 px-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+        <div className="w-full grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-12">
           <div className="col-span-2 space-y-6">
-            <div className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-white shadow-lg">C</div>
-              Cognitive Tech
+            <div className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-sm">W</div>
+              WhyAnalyst
             </div>
-            <p className="text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed font-medium">
-              Automating data science for enterprise teams. Unlock insights from millions of data points across any industry.
+            <p className="text-slate-500 dark:text-slate-400 max-w-xs leading-relaxed">
+              Automating data analysis for enterprise teams. Unlock insights from millions of data points across any industry.
             </p>
             <div className="flex gap-4">
-              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Twitter className="w-5 h-5" /></div>
-              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Linkedin className="w-5 h-5" /></div>
-              <div className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-400 hover:text-brand-primary transition-colors cursor-pointer shadow-sm"><Mail className="w-5 h-5" /></div>
+              <Twitter className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
+              <Linkedin className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
+              <Mail className="w-5 h-5 text-slate-400 cursor-pointer hover:text-brand-primary transition-colors" />
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Product</span>
+            <span className="font-bold text-slate-900 dark:text-white pb-2">Product</span>
             {['Features', 'Case Studies', 'Pricing', 'Documentation'].map((item) => (
-              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">{item}</a>
+              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">{item}</a>
             ))}
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Company</span>
-            <button onClick={() => switchView('home')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left text-sm font-medium">About Us</button>
-            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">Careers</a>
-            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">Blog</a>
-            <button onClick={() => switchView('contact')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left text-sm font-medium">Contact</button>
+            <span className="font-bold text-slate-900 dark:text-white pb-2">Company</span>
+            <button onClick={() => switchView('home')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left">About Us</button>
+            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">Careers</a>
+            <a className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">Blog</a>
+            <button onClick={() => switchView('contact')} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-left">Contact</button>
           </div>
           <div className="flex flex-col gap-4">
-            <span className="font-black text-slate-900 dark:text-white pb-2 text-xs uppercase tracking-widest">Legal</span>
+            <span className="font-bold text-slate-900 dark:text-white pb-2">Legal</span>
             {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Security'].map((item) => (
-              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors text-sm font-medium" href="#">{item}</a>
+              <a key={item} className="text-slate-500 dark:text-slate-400 hover:text-brand-primary transition-colors" href="#">{item}</a>
             ))}
           </div>
         </div>
-        <div className="max-w-7xl mx-auto pt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-t border-slate-100 dark:border-zinc-900 mt-20">
-          <span>© 2024 Cognitive Tech Platform. All rights reserved.</span>
+        <div className="w-full pt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-400 text-xs font-medium border-t border-slate-100 mt-20">
+          <span>© 2024 WhyAnalyst Platform. All rights reserved.</span>
           <div className="flex gap-8">
             <a href="#" className="hover:text-slate-600 transition-colors">Privacy</a>
             <a href="#" className="hover:text-slate-600 transition-colors">Terms</a>

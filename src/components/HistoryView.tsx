@@ -58,7 +58,7 @@ export const HistoryView = ({ onReRun }: { onReRun: (record: any) => void }) => 
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#fafafa] dark:bg-[#050505] p-4 sm:p-6 lg:p-10 overflow-y-auto">
-      <div className="max-w-5xl mx-auto w-full space-y-6 sm:space-y-8">
+      <div className="w-full space-y-6 sm:space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Analysis History</h1>

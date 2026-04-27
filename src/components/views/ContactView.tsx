@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Send, MessageSquare, Globe, ArrowRight, ChevronDow
 
 export const ContactView = () => {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-16 w-full min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
       <div className="text-center mb-16 sm:mb-24">
         <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-6 tracking-tighter">How can we help?</h2>
         <p className="text-slate-500 dark:text-zinc-400 text-base sm:text-xl max-w-2xl mx-auto font-medium leading-relaxed">

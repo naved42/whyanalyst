@@ -20,8 +20,7 @@ import {
   Shield,
   Plus,
   Trash2,
-  Copy,
-  X
+  Copy
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/src/lib/utils';
@@ -29,7 +28,6 @@ import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../hooks/useAuth';
-import { updateProfile } from 'firebase/auth';
 import { ProfileImageUpload } from './ProfileImageUpload';
 
 interface SettingsViewProps {
@@ -42,25 +40,16 @@ export const SettingsView = ({ initialTab = 'preferences', onNavigate }: Setting
   const { user, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState<'preferences' | 'account' | 'usage' | 'security' | 'api'>(initialTab as any);
   const [settings, setSettings] = useState<any>(null);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [newDisplayName, setNewDisplayName] = useState('');
 
   useEffect(() => {
     setActiveTab(initialTab as any);
   }, [initialTab]);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('workspace_settings');
-      if (saved && saved !== 'undefined') {
-        setSettings(JSON.parse(saved));
-      } else {
-        setSettings({ model: 'gemini-3-flash-preview', emailNotifications: true });
-      }
-    } catch (e) {
-      console.error("Failed to parse settings", e);
-      setSettings({ model: 'gemini-3-flash-preview', emailNotifications: true });
-    }
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(setSettings)
+      .catch(() => setSettings({ model: 'gemini-3-flash-preview', emailNotifications: true }));
   }, []);
 
   const handleUpdate = async (update: any) => {
@@ -68,25 +57,16 @@ export const SettingsView = ({ initialTab = 'preferences', onNavigate }: Setting
       if (update.theme) {
         setTheme(update.theme);
       }
-      const newSettings = { ...settings, ...update };
-      localStorage.setItem('workspace_settings', JSON.stringify(newSettings));
-      setSettings(newSettings);
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(update)
+      });
+      const data = await res.json();
+      setSettings(data);
       toast.success("Preferences updated");
     } catch (err) {
       toast.error("Failed to save settings");
-    }
-  };
-
-  const handleUpdateProfile = async () => {
-    if (!user) return;
-    try {
-      await updateProfile(user, { displayName: newDisplayName });
-      setIsEditingProfile(false);
-      toast.success("Profile updated successfully! It may take a moment to reflect everywhere.");
-      // Force reload to refresh context
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      toast.error("Failed to update profile");
     }
   };
 
@@ -222,21 +202,7 @@ export const SettingsView = ({ initialTab = 'preferences', onNavigate }: Setting
                   
                   <div className="flex-1 space-y-6 text-center sm:text-left">
                      <div className="space-y-1">
-                        {isEditingProfile ? (
-                          <div className="flex items-center gap-2 mb-2">
-                            <input 
-                              autoFocus
-                              value={newDisplayName}
-                              onChange={(e) => setNewDisplayName(e.target.value)}
-                              className="text-2xl font-black text-zinc-900 dark:text-white bg-transparent border-b-2 border-indigo-500 focus:outline-none w-full sm:w-64"
-                              placeholder="Enter name"
-                            />
-                            <Button onClick={handleUpdateProfile} size="sm" className="bg-indigo-600 text-white rounded-lg h-8 px-3 text-xs">Save</Button>
-                            <Button onClick={() => setIsEditingProfile(false)} variant="ghost" size="sm" className="text-zinc-500 rounded-lg h-8 px-2"><X className="w-4 h-4" /></Button>
-                          </div>
-                        ) : (
-                          <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{user?.displayName || 'Active Analyst'}</h2>
-                        )}
+                        <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{user?.displayName || 'Active Analyst'}</h2>
                         <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center justify-center sm:justify-start gap-2">
                            <Shield className="w-3.5 h-3.5" /> Verified Researcher
                         </p>
@@ -260,9 +226,7 @@ export const SettingsView = ({ initialTab = 'preferences', onNavigate }: Setting
                      </div>
                      
                      <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                        {!isEditingProfile && (
-                          <Button onClick={() => { setIsEditingProfile(true); setNewDisplayName(user?.displayName || ''); }} variant="outline" className="rounded-xl h-10 px-6 font-bold text-[10px] uppercase tracking-widest border-zinc-200 dark:border-zinc-800">Edit Profile</Button>
-                        )}
+                        <Button variant="outline" className="rounded-xl h-10 px-6 font-bold text-[10px] uppercase tracking-widest border-zinc-200 dark:border-zinc-800">Edit Profile</Button>
                         <Button className="rounded-xl h-10 px-6 font-bold text-[10px] uppercase tracking-widest bg-indigo-600 text-white hover:bg-indigo-700">Manage Subscription</Button>
                      </div>
                   </div>

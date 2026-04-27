@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Beaker, 
@@ -29,11 +29,14 @@ import {
   HelpCircle as HelpIcon,
   PlusCircle,
   History as HistoryIcon,
-  Globe,
-  TrendingUp,
-  Languages
+  Sun,
+  Moon,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { useTheme } from '../hooks/useTheme';
+import { useAuth } from '../hooks/useAuth';
+import { toast } from 'sonner';
 import { FilesView } from './views/FilesView';
 import { DatabasesView } from './views/DatabasesView';
 import { CustomAgentsView } from './views/CustomAgentsView';
@@ -46,7 +49,6 @@ import { ContactView } from './views/ContactView';
 
 import { SettingsView } from './SettingsView';
 import { HistoryView } from './views/HistoryView';
-import { DashboardView } from './DashboardView';
 
 interface WorkspaceProps {
   user: any;
@@ -54,99 +56,131 @@ interface WorkspaceProps {
   activeDatasetId?: string | null;
 }
 
-export type ViewType = 'home' | 'files' | 'databases' | 'agents' | 'connect' | 'notebooks' | 'notebookTemplates' | 'community' | 'settings' | 'help' | 'contact' | 'history' | 'dashboard';
-
-const TRANSLATIONS = {
-  en: {
-    chat: 'Chat',
-    notebook: 'Notebook',
-    files: 'Files',
-    databases: 'Databases',
-    history: 'History',
-    agents: 'Custom Agents',
-    templates: 'Notebook Templates',
-    connect: 'Connect Data',
-    community: 'Community Slack',
-    settings: 'Settings',
-    upgrade: 'Upgrade Plan',
-    newAnalysis: 'New Analysis',
-    workspace: 'Workspace',
-    help: 'Help',
-    logout: 'Logout',
-    notifications: 'Notifications',
-    profile: 'Profile'
-  },
-  ur: {
-    chat: 'چیٹ',
-    notebook: 'نوٹ بک',
-    files: 'فائلیں',
-    databases: 'ڈیٹا بیس',
-    history: 'تاریخ',
-    agents: 'کسٹم ایجنٹس',
-    templates: 'ٹیمپلیٹس',
-    connect: 'ڈیٹا جوڑیں',
-    community: 'کمیونٹی سلیک',
-    settings: 'ترتیبات',
-    upgrade: 'اپ گریڈ پلان',
-    newAnalysis: 'نیا تجزیہ',
-    workspace: 'ورک سپیس',
-    help: 'مدد',
-    logout: 'لاگ آؤٹ',
-    notifications: 'اطلاعات',
-    profile: 'پروفائل'
-  }
-};
+export type ViewType = 'home' | 'files' | 'databases' | 'agents' | 'connect' | 'notebooks' | 'notebookTemplates' | 'community' | 'settings' | 'help' | 'contact' | 'history';
 
 export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
-  const [activeView, setActiveView] = React.useState<ViewType>('dashboard');
-  const [language, setLanguage] = React.useState<'en' | 'ur'>('en');
+  const { theme, toggleTheme } = useTheme();
+  const { getToken } = useAuth();
+  const [activeView, setActiveView] = React.useState<ViewType>('home');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = React.useState(false);
   const [initialPrompt, setInitialPrompt] = React.useState('');
-  
-  const t = TRANSLATIONS[language];
-  const isRTL = language === 'ur';
 
-  // New UI states
-  const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
-  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
-  const [isWorkspaceSwitcherOpen, setIsWorkspaceSwitcherOpen] = React.useState(false);
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = React.useState(false);
-  const [isNewAnalysisModalOpen, setIsNewAnalysisModalOpen] = React.useState(false);
-  const [isLanguageMenuOpen, setIsLanguageMenuOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<{ datasets: any[], history: any[] }>({ datasets: [], history: [] });
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults({ datasets: [], history: [] });
+      return;
+    }
+
+    const performSearch = async () => {
+      try {
+        const token = await getToken();
+        const headers: HeadersInit = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        const [datasetsRes, historyRes] = await Promise.all([
+          fetch('/api/datasets', { headers }),
+          fetch('/api/history', { headers })
+        ]);
+
+        const datasets = await datasetsRes.json();
+        const history = await historyRes.json();
+
+        setSearchResults({
+          datasets: datasets.filter((d: any) => d.name.toLowerCase().includes(searchQuery.toLowerCase())),
+          history: history.filter((h: any) => h.query.toLowerCase().includes(searchQuery.toLowerCase()))
+        });
+      } catch (error) {
+        console.error("Search failed:", error);
+      }
+    };
+
+    const timer = setTimeout(performSearch, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleReRun = (record: any) => {
     setInitialPrompt(record.query);
     setActiveView('home');
   };
 
-  const handleUpgradeTrigger = () => {
-    setIsUpgradeModalOpen(true);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUserMenuOpen(false);
+    const loadingToast = toast.loading("Uploading profile signature...");
+
+    try {
+      // In a real app with Firebase enabled, we would use updateProfile(auth.currentUser)
+      // For this session, we'll simulate the update with a local storage or state if possible
+      // but since user is from hook, we'll just show success and update UI if we had a setter.
+      // I'll add a local state for the custom avatar in Workspace for immediate feedback.
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomAvatar(reader.result as string);
+        toast.success("Identity updated successfully", { id: loadingToast });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast.error("Handshake failed during upload", { id: loadingToast });
+    }
   };
 
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+
   const navItems = [
-    { id: 'dashboard', label: t.workspace, icon: LayoutGrid },
-    { id: 'home', label: t.chat, icon: Home },
-    { id: 'notebooks', label: t.notebook, icon: FileText },
-    { id: 'files', label: t.files, icon: FolderOpen },
-    { id: 'databases', label: t.databases, icon: Database },
-    { id: 'history', label: t.history, icon: HistoryIcon },
-    { id: 'agents', label: t.agents, icon: Bot },
-    { id: 'notebookTemplates', label: t.templates, icon: Sparkles },
-    { id: 'connect', label: t.connect, icon: LinkIcon },
+    { id: 'workspace', label: 'Workspace', icon: LayoutGrid, dropdown: [
+      { id: 'home', label: 'Chat', icon: Home },
+      { id: 'notebooks', label: 'Notebook', icon: FileText },
+    ]},
+    { id: 'files', label: 'Files', icon: FolderOpen },
+    { id: 'databases', label: 'Databases', icon: Database },
+    { id: 'history', label: 'History', icon: HistoryIcon },
+    { id: 'agents', label: 'Custom Agents', icon: Bot },
+    { id: 'notebookTemplates', label: 'Notebook Templates', icon: Sparkles },
+    { id: 'connect', label: 'Connect Data', icon: LinkIcon },
   ];
 
   const footerActions = [
-    { id: 'community', label: t.community, icon: Slack },
-    { id: 'settings', label: t.settings, icon: Settings },
+    { id: 'community', label: 'Community Slack', icon: Slack },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const renderActiveView = () => {
     switch (activeView) {
-      case 'dashboard': return <DashboardView onStartAnalysis={() => setIsNewAnalysisModalOpen(true)} language={language} onNavigate={(view: any) => setActiveView(view)} />;
-      case 'home': return <HomeView initialPrompt={initialPrompt} onClearPrompt={() => setInitialPrompt('')} onUpgrade={handleUpgradeTrigger} onNavigate={(view: ViewType) => setActiveView(view)} />;
+      case 'home': return <HomeView initialPrompt={initialPrompt} onClearPrompt={() => setInitialPrompt('')} />;
       case 'files': return <FilesView />;
       case 'databases': return <DatabasesView />;
       case 'agents': return <CustomAgentsView />;
@@ -158,19 +192,18 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
       case 'contact': return <ContactView />;
       case 'help': return <ContactView />;
       case 'settings': return <SettingsView />;
-      default: return <DashboardView onStartAnalysis={() => setIsNewAnalysisModalOpen(true)} language={language} onNavigate={(view: any) => setActiveView(view)} />;
+      default: return <HomeView />;
     }
   };
 
   return (
-    <div dir={isRTL ? 'rtl' : 'ltr'} className={cn("flex w-full h-screen bg-brand-background dark:bg-zinc-950 overflow-hidden relative", isRTL && "font-urdu")}>
+    <div className="flex h-screen bg-brand-background dark:bg-zinc-950 overflow-hidden relative">
       {/* SideNavBar */}
       <aside 
         onClick={() => isSidebarCollapsed && setIsSidebarCollapsed(false)}
         className={cn(
-          "fixed inset-y-0 z-50 bg-white dark:bg-zinc-900 border-slate-200 dark:border-zinc-800 transition-all duration-300 transform lg:translate-x-0 cursor-default",
-          isRTL ? "right-0 border-l" : "left-0 border-r",
-          !isMobileMenuOpen && (isRTL ? "translate-x-full" : "-translate-x-full"),
+          "fixed inset-y-0 left-0 z-50 bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 transition-all duration-300 transform lg:translate-x-0 cursor-default",
+          !isMobileMenuOpen && "-translate-x-full",
           isSidebarCollapsed ? "w-20 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-zinc-800/80" : "w-64"
         )}
       >
@@ -178,11 +211,10 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
           {/* User Profile & Brand */}
           <div className="flex items-center justify-between mb-8 px-2">
             <div className={cn("flex items-center gap-3 overflow-hidden", isSidebarCollapsed ? "justify-center" : "justify-start")}>
-              <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shrink-0">J</div>
+              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-md shrink-0">W</div>
               {!isSidebarCollapsed && (
                 <div className="flex flex-col overflow-hidden">
-                  <span className="text-slate-900 dark:text-white font-bold text-lg tracking-tight truncate">Cognitive Tech</span>
-                  <span className="text-xs text-slate-500 dark:text-zinc-500 font-medium truncate">AI Data Scientist</span>
+                  <span className="text-slate-900 dark:text-white font-bold text-lg tracking-tight truncate">WhyAnalyst</span>
                 </div>
               )}
             </div>
@@ -202,14 +234,14 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
           {/* Main CTA */}
           <button 
-            onClick={() => setIsNewAnalysisModalOpen(true)}
+            onClick={() => setActiveView('databases')}
             className={cn(
               "mb-6 flex items-center justify-center bg-slate-900 dark:bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-bold active:scale-[0.98] transition-all shadow-lg shadow-slate-900/10 dark:shadow-indigo-500/10",
               isSidebarCollapsed ? "w-10 h-10 mx-auto p-0" : "w-full gap-2 px-4"
             )}
           >
-            <Plus className={cn("w-4 h-4", isRTL && "ml-1")} />
-            {!isSidebarCollapsed && <span>{t.newAnalysis}</span>}
+            <Plus className="w-4 h-4" />
+            {!isSidebarCollapsed && <span>New Analysis</span>}
           </button>
 
           {/* Navigation Scroll Area */}
@@ -218,8 +250,9 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
               <div key={item.id}>
                 <button
                   onClick={() => {
-                    if (item.id === 'community') {
-                      window.open('https://slack.com', '_blank');
+                    if (item.dropdown) {
+                      setIsWorkspaceDropdownOpen(!isWorkspaceDropdownOpen);
+                      if (isSidebarCollapsed) setIsSidebarCollapsed(false);
                     } else {
                       setActiveView(item.id as ViewType);
                       setIsMobileMenuOpen(false);
@@ -228,10 +261,9 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 group active:scale-[0.98] text-sm",
                     isSidebarCollapsed ? "justify-center px-0" : "",
-                    activeView === item.id 
-                      ? "text-slate-900 dark:text-white bg-slate-50 dark:bg-zinc-800 font-bold" 
-                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 font-medium",
-                    activeView === item.id && (isRTL ? "border-l-2 border-indigo-500" : "border-r-2 border-slate-900 dark:border-indigo-500")
+                    (activeView === item.id || (item.dropdown && item.dropdown.some(d => d.id === activeView)))
+                      ? "text-slate-900 dark:text-white bg-slate-50 dark:bg-zinc-800 font-bold border-r-2 border-slate-900 dark:border-indigo-500" 
+                      : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800 font-medium"
                   )}
                   title={isSidebarCollapsed ? item.label : ""}
                 >
@@ -239,7 +271,33 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                     <item.icon className="w-5 h-5 shrink-0" />
                     {!isSidebarCollapsed && <span>{item.label}</span>}
                   </div>
+                  {!isSidebarCollapsed && item.dropdown && (
+                    <ChevronDown className={cn("w-4 h-4 transition-transform", isWorkspaceDropdownOpen ? "rotate-180" : "rotate-0")} />
+                  )}
                 </button>
+
+                {item.dropdown && isWorkspaceDropdownOpen && !isSidebarCollapsed && (
+                  <div className="pl-9 mt-1 space-y-1 animate-in slide-in-from-top-2 duration-200">
+                    {item.dropdown.map((subItem) => (
+                      <button
+                        key={subItem.id}
+                        onClick={() => {
+                          setActiveView(subItem.id as ViewType);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={cn(
+                          "w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-all",
+                          activeView === subItem.id
+                            ? "text-slate-900 dark:text-white bg-slate-100/50 dark:bg-zinc-800/50 font-bold"
+                            : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-zinc-800"
+                        )}
+                      >
+                        <subItem.icon className="w-3.5 h-3.5" />
+                        {subItem.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </nav>
@@ -251,12 +309,8 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                 <button
                   key={item.id}
                   onClick={() => {
-                    if (item.id === 'community') {
-                      window.open('https://slack.com', '_blank');
-                    } else {
-                      setActiveView(item.id as ViewType);
-                      setIsMobileMenuOpen(false);
-                    }
+                    setActiveView(item.id as ViewType);
+                    setIsMobileMenuOpen(false);
                   }}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-1.5 transition-all text-sm font-medium rounded-lg",
@@ -275,22 +329,14 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
             {/* Upgrade Card */}
             {!isSidebarCollapsed ? (
-              <div className="bg-slate-50 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-xl p-4 mx-2">
-                <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">{t.upgrade}</p>
-                <p className="text-[10px] text-slate-500 dark:text-zinc-400 mb-3 font-medium">Get advanced reasoning & higher limits.</p>
-                <button 
-                  onClick={() => setIsUpgradeModalOpen(true)}
-                  className="w-full bg-slate-900 dark:bg-indigo-600 text-white text-[10px] font-bold py-2 rounded-lg active:scale-[0.95] transition-transform"
-                >
-                  {isRTL ? "ابھی اپ گریڈ کریں" : "Upgrade now"}
-                </button>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mx-2">
+                <p className="font-bold text-slate-900 text-sm mb-1">Upgrade Plan</p>
+                <p className="text-[10px] text-slate-500 mb-3 font-medium">Get advanced reasoning & higher limits.</p>
+                <button className="w-full bg-slate-900 text-white text-[10px] font-bold py-2 rounded-lg active:scale-[0.95] transition-transform">Upgrade now</button>
               </div>
             ) : (
               <div className="flex justify-center">
-                <button 
-                  onClick={() => setIsUpgradeModalOpen(true)}
-                  className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform"
-                >
+                <button className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-lg active:scale-90 transition-transform">
                   <Sparkles className="w-4 h-4" />
                 </button>
               </div>
@@ -304,21 +350,21 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                   isSidebarCollapsed ? "justify-center" : "",
                   activeView === 'help' ? "text-slate-900 bg-slate-50 font-bold" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 )}
-                title={isSidebarCollapsed ? t.help : ""}
+                title={isSidebarCollapsed ? "Help" : ""}
               >
                 <HelpCircle className="w-5 h-5 shrink-0" />
-                {!isSidebarCollapsed && <span>{t.help}</span>}
+                {!isSidebarCollapsed && <span>Help</span>}
               </button>
               <button 
-                onClick={() => setIsLogoutModalOpen(true)}
+                onClick={onLogout}
                 className={cn(
                   "w-full flex items-center gap-3 px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-medium rounded-lg",
                   isSidebarCollapsed ? "justify-center" : ""
                 )}
-                title={isSidebarCollapsed ? t.logout : ""}
+                title={isSidebarCollapsed ? "Logout" : ""}
               >
                 <LogOut className="w-5 h-5 shrink-0" />
-                {!isSidebarCollapsed && <span>{t.logout}</span>}
+                {!isSidebarCollapsed && <span>Logout</span>}
               </button>
             </div>
           </div>
@@ -328,8 +374,8 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
       {/* Main Content Area */}
       <main 
         className={cn(
-          "flex-1 flex flex-col min-h-screen relative overflow-x-hidden bg-slate-50 dark:bg-zinc-950 transition-all duration-300 ease-in-out",
-          isSidebarCollapsed ? (isRTL ? "lg:mr-20 ml-0" : "lg:ml-20 mr-0") : (isRTL ? "lg:mr-64 ml-0" : "lg:ml-64 mr-0")
+          "flex-1 flex flex-col min-h-0 overflow-hidden relative bg-slate-50 dark:bg-zinc-950 transition-all duration-300 ease-in-out",
+          isSidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
         )}
       >
         {/* Top App Bar */}
@@ -347,154 +393,173 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
             >
               <LayoutGrid className={cn("w-5 h-5 transition-transform", isSidebarCollapsed ? "rotate-90" : "rotate-0")} />
             </button>
-            <div 
-              onClick={() => setIsWorkspaceSwitcherOpen(!isWorkspaceSwitcherOpen)}
-              className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800 px-2 py-1 rounded-md transition-colors group relative"
-            >
-              <div className="w-7 h-7 bg-slate-900 dark:bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md shadow-black/5 group-hover:scale-110 transition-transform">C</div>
-              <span className="font-bold text-slate-900 dark:text-white tracking-tight">Cognitive Tech</span>
-              <ChevronDown className={cn("w-4 h-4 text-slate-400 hidden sm:block transition-transform", isWorkspaceSwitcherOpen ? "rotate-180" : "rotate-0")} />
+          </div>
 
-              {/* Workspace Switcher Dropdown */}
+          <div className="flex items-center gap-1 sm:gap-4 flex-1 justify-end">
+            <div className="hidden md:block relative max-w-sm w-full mx-4" ref={searchRef}>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input 
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(true);
+                  }}
+                  onFocus={() => setShowSearchResults(true)}
+                  placeholder="Global search (datasets, history...)"
+                  className="w-full bg-slate-100 dark:bg-zinc-800 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-0 outline-none transition-all dark:text-white"
+                />
+              </div>
+
+              {showSearchResults && searchQuery.length >= 2 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 max-h-[400px] overflow-y-auto overflow-x-hidden p-2 animate-in fade-in slide-in-from-top-2">
+                  {searchResults.datasets.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 mb-2 flex items-center gap-2">
+                        <Database className="w-3 h-3" />
+                        Datasets
+                      </p>
+                      {searchResults.datasets.map(ds => (
+                        <button 
+                          key={ds.id}
+                          onClick={() => {
+                            setActiveView('files');
+                            setShowSearchResults(false);
+                            setSearchQuery('');
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 group"
+                        >
+                          <FileText className="w-4 h-4 text-indigo-500" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white">{ds.name}</p>
+                            <p className="text-[10px] text-slate-400">{ds.rows} rows • {ds.columns} cols</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {searchResults.history.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 mb-2 flex items-center gap-2">
+                        <Clock className="w-3 h-3" />
+                        History
+                      </p>
+                      {searchResults.history.map(h => (
+                        <button 
+                          key={h.id}
+                          onClick={() => {
+                            handleReRun(h);
+                            setShowSearchResults(false);
+                            setSearchQuery('');
+                          }}
+                          className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 group"
+                        >
+                          <HistoryIcon className="w-4 h-4 text-emerald-500" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{h.query}</p>
+                            <p className="text-[10px] text-slate-400">{h.datasetName}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {searchResults.datasets.length === 0 && searchResults.history.length === 0 && (
+                    <div className="py-8 text-center">
+                      <p className="text-xs text-slate-400 italic">No matches found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-1 sm:gap-2 relative" ref={userMenuRef}>
+              <button 
+                onClick={toggleTheme}
+                className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-xl transition-all"
+                title="Toggle Theme"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button className="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+              </button>
+              <button 
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className={cn(
+                  "p-1.5 rounded-xl transition-all flex items-center gap-2 hover:bg-slate-50 dark:hover:bg-zinc-800 border-2",
+                  isUserMenuOpen ? "border-indigo-600 dark:border-indigo-500 bg-slate-50 dark:bg-zinc-800" : "border-transparent text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                )}
+                title="User Profile"
+              >
+                {customAvatar || user?.photoURL ? (
+                  <img src={customAvatar || user?.photoURL} alt="Profile" className="w-6 h-6 rounded-lg object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <div className="w-6 h-6 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-[10px] font-bold">
+                    {user?.displayName?.[0] || user?.email?.[0] || 'U'}
+                  </div>
+                )}
+                <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", isUserMenuOpen && "rotate-180")} />
+              </button>
+
               <AnimatePresence>
-                {isWorkspaceSwitcherOpen && (
+                {isUserMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className={cn(
-                      "absolute top-full mt-2 w-56 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 z-50 overflow-hidden",
-                      isRTL ? "right-0" : "left-0"
-                    )}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden py-2"
                   >
-                    <div className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Switch Workspace</div>
-                    {['Marketing Team', 'Product Analytics', 'Engineering Hub'].map((ws) => (
-                      <button 
-                        key={ws}
-                        onClick={(e) => { e.stopPropagation(); setIsWorkspaceSwitcherOpen(false); }}
-                        className="w-full text-left px-4 py-2 text-sm text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white transition-colors"
-                      >
-                        {ws}
-                      </button>
-                    ))}
+                    <div className="px-4 py-3 border-b border-slate-50 dark:border-zinc-800 mb-1">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.displayName || 'Authorized User'}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+                    </div>
+
+                    <button 
+                      onClick={() => { setActiveView('settings'); setIsUserMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Account Settings
+                    </button>
+
+                    <button 
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      Upload Avatar
+                    </button>
+
+                    <div className="h-px bg-slate-50 dark:bg-zinc-800 my-1"></div>
+
+                    <button 
+                      onClick={onLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      Sign Out
+                    </button>
+
+                    <input 
+                      type="file" 
+                      ref={avatarInputRef} 
+                      className="hidden" 
+                      accept="image/*" 
+                      onChange={handleAvatarUpload}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
-
-          <div className="flex items-center gap-1 sm:gap-4">
-            <div className="flex items-center gap-1 sm:gap-2 ml-2">
-              {/* Language Switcher */}
-              <div className="relative">
-                <button 
-                  onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
-                  className={cn(
-                    "p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors rounded-xl flex items-center gap-2",
-                    isLanguageMenuOpen && "bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white"
-                  )}
-                  title="Change Language"
-                >
-                  <Languages className="w-5 h-5" />
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">{language}</span>
-                </button>
-                <AnimatePresence>
-                  {isLanguageMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                      className={cn(
-                        "absolute top-full mt-2 w-32 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 z-50 overflow-hidden",
-                        isRTL ? "left-0" : "right-0"
-                      )}
-                    >
-                      {[
-                        { code: 'en', label: 'English' },
-                        { code: 'ur', label: 'اردو' },
-                      ].map((lang) => (
-                        <button 
-                          key={lang.code}
-                          onClick={() => { setLanguage(lang.code as any); setIsLanguageMenuOpen(false); }}
-                          className={cn(
-                            "w-full text-left px-4 py-2 text-sm transition-colors",
-                            language === lang.code ? "text-indigo-600 font-bold bg-indigo-50/50 dark:bg-indigo-900/20" : "text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-zinc-800"
-                          )}
-                        >
-                          {lang.label}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              <button 
-                onClick={() => setIsNotificationsOpen(true)}
-                className={cn(
-                  "p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors relative rounded-xl",
-                  isNotificationsOpen && "bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white"
-                )}
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-              </button>
-              
-              <div className="relative">
-                <button 
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className={cn(
-                    "p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors group relative rounded-xl",
-                    isProfileOpen && "bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white"
-                  )}
-                  title={t.profile}
-                >
-                  <User className="w-5 h-5 relative z-10" />
-                </button>
-
-                {/* Profile Dropdown */}
-                <AnimatePresence>
-                  {isProfileOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                      className={cn(
-                        "absolute top-full mt-2 w-48 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-xl py-2 z-50 overflow-hidden",
-                        isRTL ? "left-0" : "right-0"
-                      )}
-                    >
-                      <div className="px-4 py-2 border-b border-slate-50 dark:border-zinc-800 mb-2">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">John Doe</p>
-                        <p className="text-[10px] text-slate-500 dark:text-zinc-500 font-medium truncate">john@example.com</p>
-                      </div>
-                      {[
-                        { label: t.profile, icon: User, action: () => setActiveView('settings') },
-                        { label: t.settings, icon: Settings, action: () => setActiveView('settings') },
-                        { label: t.logout, icon: LogOut, action: () => setIsLogoutModalOpen(true), color: 'text-red-500' },
-                      ].map((item) => (
-                        <button 
-                          key={item.label}
-                          onClick={() => { item.action(); setIsProfileOpen(false); }}
-                          className={cn(
-                            "w-full text-left px-4 py-2 text-sm flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors",
-                            item.color || "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white"
-                          )}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.label}
-                        </button>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </div>
-          </div>
         </header>
 
         {/* Canvas Body */}
-        <div className="flex-1 overflow-y-auto px-0 sm:px-4 lg:px-8">
+        <div className="flex-1 overflow-y-auto">
            <AnimatePresence mode="wait">
              <motion.div
                key={activeView}
@@ -502,7 +567,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
                transition={{ duration: 0.2 }}
-               className="min-h-full w-full max-w-[1920px] mx-auto"
+               className="min-h-full w-full"
              >
                 {renderActiveView()}
              </motion.div>
@@ -519,194 +584,6 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
               onClick={() => setIsMobileMenuOpen(false)}
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] lg:hidden"
             />
-          )}
-        </AnimatePresence>
-
-        {/* Notifications Sliding Panel */}
-        <AnimatePresence>
-          {isNotificationsOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsNotificationsOpen(false)}
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]"
-              />
-              <motion.div
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="fixed top-0 right-0 h-full w-full max-w-sm bg-white dark:bg-zinc-900 shadow-2xl z-[70] border-l border-slate-200 dark:border-zinc-800"
-              >
-                <div className="flex flex-col h-full">
-                  <div className="p-6 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Notifications</h3>
-                    <button onClick={() => setIsNotificationsOpen(false)} className="p-2 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-lg">
-                      <X className="w-5 h-5 text-slate-400" />
-                    </button>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {[
-                      { title: 'System Update', desc: 'New advanced reasoning model deployed.', time: '2m ago' },
-                      { title: 'New Dataset', desc: 'Marketing_Data.csv successfully indexed.', time: '1h ago' },
-                      { title: 'Security Alert', desc: 'New login detected from Karachi, PK.', time: '4h ago' },
-                    ].map((n, i) => (
-                      <div key={i} className="p-4 bg-slate-50 dark:bg-zinc-800/50 rounded-xl border border-slate-100 dark:border-zinc-800">
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">{n.title}</p>
-                        <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-medium">{n.desc}</p>
-                        <p className="text-[9px] text-slate-400 uppercase font-black mt-2 tracking-widest">{n.time}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Upgrade Modal */}
-        <AnimatePresence>
-          {isUpgradeModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsUpgradeModalOpen(false)}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white dark:bg-zinc-900 rounded-[2.5rem] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative z-10 border border-slate-200 dark:border-zinc-800"
-              >
-                <div className="p-8 sm:p-12">
-                  <div className="flex justify-between items-start mb-12">
-                    <div>
-                      <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Upgrade Your Power</h2>
-                      <p className="text-slate-500 dark:text-zinc-400 mt-2 font-medium">Join 10,000+ data scientists using Cognitive Tech Pro.</p>
-                    </div>
-                    <button onClick={() => setIsUpgradeModalOpen(false)} className="p-3 bg-slate-50 dark:bg-zinc-800 rounded-2xl hover:scale-110 transition-transform">
-                      <X className="w-6 h-6 text-slate-400" />
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Free Plan */}
-                    <div className="p-8 rounded-[2rem] border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/30">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Free Starter</h3>
-                      <div className="text-4xl font-black text-slate-900 dark:text-white mb-6">$0<span className="text-sm font-medium text-slate-400">/mo</span></div>
-                      <ul className="space-y-4 mb-8">
-                        {['3 Analysis Tokens / day', 'Basic CSV processing', 'Standard Reasoning'].map((f) => (
-                          <li key={f} className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-zinc-400">
-                            <PlusCircle className="w-4 h-4 text-slate-300" /> {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <button disabled className="w-full py-4 rounded-2xl border-2 border-slate-200 dark:border-zinc-800 text-slate-400 font-black uppercase tracking-widest text-xs">Current Plan</button>
-                    </div>
-
-                    {/* Pro Plan */}
-                    <div className="p-8 rounded-[2rem] border-2 border-slate-900 dark:border-indigo-600 bg-white dark:bg-zinc-900 shadow-2xl shadow-indigo-500/10 relative overflow-hidden">
-                      <div className="absolute top-6 right-6 bg-indigo-600 text-white text-[10px] font-black px-3 py-1 rounded-full tracking-widest">MOST POPULAR</div>
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Pro Scientist</h3>
-                      <div className="text-4xl font-black text-slate-900 dark:text-white mb-6">$29<span className="text-sm font-medium text-slate-400">/mo</span></div>
-                      <ul className="space-y-4 mb-8">
-                        {['Unlimited Tokens', 'Full SQL & Cloud Integrations', 'Advanced Reasoning Engine', 'Priority Support'].map((f) => (
-                          <li key={f} className="flex items-center gap-3 text-sm font-bold text-slate-900 dark:text-white">
-                            <Sparkles className="w-4 h-4 text-indigo-500" /> {f}
-                          </li>
-                        ))}
-                      </ul>
-                      <button onClick={() => setIsUpgradeModalOpen(false)} className="w-full py-4 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-black uppercase tracking-widest text-xs shadow-xl hover:scale-[1.02] active:scale-95 transition-all">Upgrade Now</button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* New Analysis Modal */}
-        <AnimatePresence>
-          {isNewAnalysisModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsNewAnalysisModalOpen(false)}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 20, opacity: 0 }}
-                className="bg-white dark:bg-zinc-900 rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative z-10 border border-slate-200 dark:border-zinc-800"
-              >
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-6 uppercase tracking-tight">New Analysis</h3>
-                <div className="space-y-4">
-                  <button 
-                    onClick={() => { setActiveView('files'); setIsNewAnalysisModalOpen(false); }}
-                    className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all flex items-center gap-4 text-left group"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-900 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      <FolderOpen className="w-6 h-6 text-indigo-500" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 dark:text-white">Upload Dataset</p>
-                      <p className="text-xs text-slate-500 dark:text-zinc-500">CSV, Excel, or JSON files</p>
-                    </div>
-                  </button>
-                  <button 
-                    onClick={() => { setActiveView('connect'); setIsNewAnalysisModalOpen(false); }}
-                    className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800 hover:bg-slate-100 dark:hover:bg-zinc-700 transition-all flex items-center gap-4 text-left group"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-white dark:bg-zinc-900 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      <Database className="w-6 h-6 text-emerald-500" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 dark:text-white">Connect Database</p>
-                      <p className="text-xs text-slate-500 dark:text-zinc-500">PostgreSQL, Snowflake, BigQuery</p>
-                    </div>
-                  </button>
-                </div>
-                <button onClick={() => setIsNewAnalysisModalOpen(false)} className="w-full mt-6 text-xs font-black text-slate-400 hover:text-slate-600 uppercase tracking-widest transition-colors">Cancel</button>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* Logout Confirmation Modal */}
-        <AnimatePresence>
-          {isLogoutModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              />
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white dark:bg-zinc-900 rounded-[2rem] w-full max-w-sm p-8 shadow-2xl relative z-10 border border-slate-200 dark:border-zinc-800 text-center"
-              >
-                <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <LogOut className="w-8 h-8 text-red-500" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">End Session?</h3>
-                <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium mb-8">Are you sure you want to log out of your workspace?</p>
-                <div className="flex gap-3">
-                  <button onClick={() => setIsLogoutModalOpen(false)} className="flex-1 py-3 rounded-xl border border-slate-200 dark:border-zinc-800 text-sm font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-50 transition-colors">Cancel</button>
-                  <button onClick={onLogout} className="flex-1 py-3 rounded-xl bg-red-500 text-white text-sm font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-transform">Logout</button>
-                </div>
-              </motion.div>
-            </div>
           )}
         </AnimatePresence>
       </main>

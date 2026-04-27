@@ -22,7 +22,7 @@ import { cn } from '@/src/lib/utils';
 
 export const CommunityView = () => {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8 w-full min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-[2.5rem] bg-slate-900 dark:bg-indigo-600 text-white mb-16 p-8 sm:p-16 shadow-2xl">
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -157,9 +157,9 @@ export const CommunityView = () => {
       {/* Footer */}
       <footer className="mt-24 py-16 border-t border-slate-100 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-10 opacity-30 group hover:opacity-100 transition-opacity duration-700">
         <div className="flex items-center gap-6">
-          <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white uppercase tracking-widest text-[16px]">Cognitive Tech</span>
+          <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white uppercase tracking-widest text-[16px]">WhyAnalyst</span>
           <div className="w-px h-6 bg-slate-200 dark:bg-zinc-800"></div>
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">© 2024 Cognitive Tech Ops.</p>
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">© 2024 WhyAnalyst Ops.</p>
         </div>
         <div className="flex gap-10">
           {['Privacy', 'Terms', 'Resources'].map(link => (

@@ -134,7 +134,8 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
         </Tooltip>
       </div>
 
-      <div className="flex px-4 py-2 gap-4 border-b border-zinc-200 dark:border-zinc-800">
+    <div className="flex px-4 py-2 gap-4 border-b border-zinc-200 dark:border-zinc-800 items-center justify-between">
+      <div className="flex gap-4">
          <Tooltip>
            <TooltipTrigger>
              <button 
@@ -150,7 +151,7 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
            </TooltipTrigger>
            <TooltipContent side="bottom">View top 10 rows of active dataset</TooltipContent>
          </Tooltip>
-
+ 
          <Tooltip>
            <TooltipTrigger>
              <button 
@@ -167,6 +168,27 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
            <TooltipContent side="bottom">Inspect data types and quality indicators</TooltipContent>
          </Tooltip>
       </div>
+
+      {audit && section === 'preview' && (
+        <Tooltip>
+          <TooltipTrigger>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+              onClick={() => {
+                import('@/src/lib/export').then(({ exportToCSV }) => {
+                  exportToCSV(preview.slice(0, 50), audit.name || 'preview_export');
+                });
+              }}
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Export Preview to CSV</TooltipContent>
+        </Tooltip>
+      )}
+    </div>
 
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-6">
