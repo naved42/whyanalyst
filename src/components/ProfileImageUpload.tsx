@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { updateProfile } from 'firebase/auth';
 import { useAuth } from '../hooks/useAuth';
+import { apiUpload } from '../lib/apiClient';
 
 export const ProfileImageUpload = ({ currentPhotoURL }: { currentPhotoURL?: string | null }) => {
   const { user, getToken, refreshUser } = useAuth();
@@ -32,27 +33,23 @@ export const ProfileImageUpload = ({ currentPhotoURL }: { currentPhotoURL?: stri
     try {
       if (!user) throw new Error("No user authenticated");
       
-      const token = await getToken();
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch('/api/user/profile-image', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
+      const response = await apiUpload(
+        '/api/user/profile-image',
+        getToken,
+        file,
+        'image'
+      );
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+        throw new Error(response.error || "Upload failed");
       }
 
-      const { url } = await response.json();
+      const imageUrl = response.data?.url;
+      if (!imageUrl) throw new Error("No URL returned from server");
       
       // Update Firebase Auth profile
       await updateProfile(user, {
-        photoURL: url
+        photoURL: imageUrl
       });
 
       // Refresh the user state in context

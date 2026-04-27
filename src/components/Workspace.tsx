@@ -33,9 +33,10 @@ import {
   Moon,
   Clock
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../hooks/useAuth';
+import { apiGet } from '../lib/apiClient';
 import { toast } from 'sonner';
 import { FilesView } from './views/FilesView';
 import { DatabasesView } from './views/DatabasesView';
@@ -49,6 +50,7 @@ import { ContactView } from './views/ContactView';
 
 import { SettingsView } from './SettingsView';
 import { HistoryView } from './views/HistoryView';
+import { ReactLenis } from 'lenis/react';
 
 interface WorkspaceProps {
   user: any;
@@ -90,22 +92,19 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
     const performSearch = async () => {
       try {
-        const token = await getToken();
-        const headers: HeadersInit = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
         const [datasetsRes, historyRes] = await Promise.all([
-          fetch('/api/datasets', { headers }),
-          fetch('/api/history', { headers })
+          apiGet('/api/datasets', getToken),
+          apiGet('/api/history', getToken)
         ]);
 
-        const datasets = await datasetsRes.json();
-        const history = await historyRes.json();
-
-        setSearchResults({
-          datasets: datasets.filter((d: any) => d.name.toLowerCase().includes(searchQuery.toLowerCase())),
-          history: history.filter((h: any) => h.query.toLowerCase().includes(searchQuery.toLowerCase()))
-        });
+        if (datasetsRes.ok && historyRes.ok) {
+          setSearchResults({
+            datasets: (datasetsRes.data || []).filter((d: any) => d.name.toLowerCase().includes(searchQuery.toLowerCase())),
+            history: (historyRes.data || []).filter((h: any) => h.query.toLowerCase().includes(searchQuery.toLowerCase()))
+          });
+        } else {
+          console.error("Search failed:", datasetsRes.error || historyRes.error);
+        }
       } catch (error) {
         console.error("Search failed:", error);
       }
@@ -113,7 +112,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
     const timer = setTimeout(performSearch, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, getToken]);
 
   const handleReRun = (record: any) => {
     setInitialPrompt(record.query);
@@ -245,7 +244,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
           </button>
 
           {/* Navigation Scroll Area */}
-          <nav className="flex-1 overflow-y-auto scrollbar-hide space-y-1">
+          <nav className="flex-1 overflow-y-auto scrollbar-hide space-y-1" data-lenis-prevent>
             {navItems.map((item) => (
               <div key={item.id}>
                 <button
@@ -413,7 +412,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
               </div>
 
               {showSearchResults && searchQuery.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 max-h-[400px] overflow-y-auto overflow-x-hidden p-2 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 max-h-[400px] overflow-y-auto overflow-x-hidden p-2 animate-in fade-in slide-in-from-top-2" data-lenis-prevent>
                   {searchResults.datasets.length > 0 && (
                     <div className="mb-4">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 mb-2 flex items-center gap-2">
@@ -559,7 +558,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
         </header>
 
         {/* Canvas Body - Desktop Responsive */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <ReactLenis className="flex-1 overflow-y-auto overflow-x-hidden">
            <AnimatePresence mode="wait">
              <motion.div
                key={activeView}
@@ -572,7 +571,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                 {renderActiveView()}
              </motion.div>
            </AnimatePresence>
-        </div>
+        </ReactLenis>
 
         {/* Mobile Sidebar Overlay */}
         <AnimatePresence>
