@@ -17,7 +17,7 @@ import {
   TooltipContent, 
   TooltipTrigger 
 } from './ui/tooltip';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
@@ -177,7 +177,7 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
               size="icon" 
               className="h-6 w-6 text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               onClick={() => {
-                import('@/src/lib/export').then(({ exportToCSV }) => {
+                import('@/lib/data-engine').then(({ exportToCSV }) => {
                   exportToCSV(preview.slice(0, 50), audit.name || 'preview_export');
                 });
               }}
@@ -290,3 +290,4 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
     </div>
   );
 };
+

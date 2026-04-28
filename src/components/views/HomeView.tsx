@@ -38,14 +38,17 @@ import {
   AlertCircle,
   X,
   Database,
-  Terminal
+  Terminal,
+  Zap
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
+import { RobotAvatar } from '../RobotAvatar';
 import { generateStreamResponse } from '@/src/services/geminiService';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 import { ChatPlotly, ChatTable, ChatCode } from '../chat/ChatComponents';
+import { ReactLenis } from 'lenis/react';
 
 interface ChatMessage {
   id: string;
@@ -67,10 +70,23 @@ interface HomeViewProps {
 export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
   const { getToken, user } = useAuth();
   const [input, setInput] = React.useState(initialPrompt || '');
-  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  // Restore messages from localStorage on mount
+  const [messages, setMessages] = React.useState<ChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem('ct_chat_messages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
+      }
+    } catch {}
+    return [];
+  });
   const [isLoading, setIsLoading] = React.useState(false);
   const [isAdvancedReasoning, setIsAdvancedReasoning] = React.useState(false);
-  const [tokens, setTokens] = React.useState(20); // Starting with 20 tokens
+  // Restore tokens from localStorage (default 20)
+  const [tokens, setTokens] = React.useState<number>(() => {
+    try { return parseInt(localStorage.getItem('ct_tokens') || '20', 10); } catch { return 20; }
+  });
   const [isUploading, setIsUploading] = React.useState(false);
   const [isRecording, setIsRecording] = React.useState(false);
   const [history, setHistory] = React.useState<any[]>([]);
@@ -85,6 +101,38 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
   const [activePanel, setActivePanel] = React.useState<'connectors' | 'tools' | 'agents' | null>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
   const [activeAgent, setActiveAgent] = React.useState<string | null>(null);
+  const [activeTools, setActiveTools] = React.useState<string[]>([]);
+  const [activeConnectors, setActiveConnectors] = React.useState<string[]>([]);
+  const [pendingFile, setPendingFile] = React.useState<{ name: string, summary: string } | null>(null);
+  
+  // Rate limiting logic: 5 messages per hour for free users
+  const [isPro, setIsPro] = React.useState(localStorage.getItem('ct_user_tier') === 'pro');
+  const [recentMessagesCount, setRecentMessagesCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const handleStorage = () => {
+      setIsPro(localStorage.getItem('ct_user_tier') === 'pro');
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  React.useEffect(() => {
+    const checkRateLimit = () => {
+      try {
+        const history = JSON.parse(localStorage.getItem('ct_msg_history') || '[]');
+        const oneHourAgo = Date.now() - 3600000;
+        const recent = history.filter((ts: number) => ts > oneHourAgo);
+        setRecentMessagesCount(recent.length);
+        localStorage.setItem('ct_msg_history', JSON.stringify(recent));
+      } catch {
+        setRecentMessagesCount(0);
+      }
+    };
+    checkRateLimit();
+    const interval = setInterval(checkRateLimit, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [messages]);
 
   // Suggested Prompts
   const suggestedPrompts = [
@@ -104,6 +152,27 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
     { label: 'Tracker', icon: Target, color: 'text-purple-500', prompt: 'Build a project tracker with status updates for ' },
     { label: 'Report', icon: FileText, color: 'text-red-500', prompt: 'Compose a professional report summarizing key findings from ' },
   ];
+
+  // Persist messages to localStorage whenever they change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('ct_chat_messages', JSON.stringify(messages));
+    } catch {}
+  }, [messages]);
+
+  // Persist tokens to localStorage whenever they change
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('ct_tokens', tokens.toString());
+    } catch {}
+  }, [tokens]);
+  // Persist active tools and connectors to localStorage
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('ct_active_tools', JSON.stringify(activeTools));
+      localStorage.setItem('ct_active_connectors', JSON.stringify(activeConnectors));
+    } catch {}
+  }, [activeTools, activeConnectors]);
 
   React.useEffect(() => {
     if (initialPrompt) {
@@ -161,9 +230,21 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
   const handleAgentSelect = (agent: string) => {
     setActiveAgent(agent);
     setActivePanel(null);
-    toast.success(`Agent ${agent} activated`, {
-      description: "This agent will be used as your AI role for the next query."
-    });
+    toast.success(`Agent ${agent} activated`);
+  };
+
+  const handleToggleTool = (tool: string) => {
+    setActiveTools(prev => 
+      prev.includes(tool) ? prev.filter(t => t !== tool) : [...prev, tool]
+    );
+    toast.success(activeTools.includes(tool) ? `Tool ${tool} removed` : `Tool ${tool} added`);
+  };
+
+  const handleToggleConnector = (connector: string) => {
+    setActiveConnectors(prev => 
+      prev.includes(connector) ? prev.filter(c => c !== connector) : [...prev, connector]
+    );
+    toast.success(activeConnectors.includes(connector) ? `Connector ${connector} removed` : `Connector ${connector} added`);
   };
 
   const renderPanel = (type: 'connectors' | 'tools' | 'agents') => {
@@ -231,27 +312,42 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
         <div className="px-4 py-2 border-b border-slate-50 dark:border-zinc-800 mb-3">
           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{type}</p>
         </div>
-        <div className="grid grid-cols-3 gap-2 px-3 pb-2 max-h-[300px] overflow-y-auto custom-scrollbar">
-          {items[type].map((item, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                if (type === 'agents') handleAgentSelect(item.name);
-                else {
-                  toast.success(`${item.name} connected to session context.`);
-                  setActivePanel(null);
-                }
-              }}
-              className="flex flex-col items-center justify-start gap-2 p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-all text-center group"
-            >
-              <div className={cn("w-10 h-10 rounded-xl bg-slate-50 dark:bg-zinc-800/80 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform", item.color.replace('text-', 'bg-').replace('500', '50/50'))}>
-                <item.icon className={cn("w-5 h-5", item.color)} />
-              </div>
-              <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 leading-tight">
-                {item.name}
-              </span>
-            </button>
-          ))}
+        <div className="grid grid-cols-3 gap-2 px-3 pb-2 max-h-[300px] overflow-y-auto custom-scrollbar" data-lenis-prevent>
+          {items[type].map((item, i) => {
+            const isActive = type === 'agents' 
+              ? activeAgent === item.name 
+              : type === 'tools' 
+                ? activeTools.includes(item.name)
+                : activeConnectors.includes(item.name);
+
+            return (
+              <button
+                key={i}
+                onClick={() => {
+                  if (type === 'agents') handleAgentSelect(item.name);
+                  else if (type === 'tools') handleToggleTool(item.name);
+                  else if (type === 'connectors') handleToggleConnector(item.name);
+                }}
+                className={cn(
+                  "flex flex-col items-center justify-start gap-2 p-2 rounded-xl transition-all text-center group",
+                  isActive ? "bg-indigo-50 dark:bg-indigo-900/30 ring-1 ring-indigo-500/50" : "hover:bg-slate-50 dark:hover:bg-zinc-800/50"
+                )}
+              >
+                <div className={cn(
+                  "w-10 h-10 rounded-xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform", 
+                  isActive ? "bg-indigo-600 text-white" : cn("bg-slate-50 dark:bg-zinc-800/80", item.color.replace('text-', 'bg-').replace('500', '50/50'))
+                )}>
+                  <item.icon className={cn("w-5 h-5", isActive ? "text-white" : item.color)} />
+                </div>
+                <span className={cn(
+                  "text-[10px] font-bold leading-tight",
+                  isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-zinc-400"
+                )}>
+                  {item.name}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </motion.div>
     );
@@ -283,25 +379,55 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
     }
 
     setIsUploading(true);
-    // Simulate upload success
-    setTimeout(() => {
+    try {
+      const token = await getToken();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(err.error || 'Upload failed');
+      }
+
+      const dataset = await response.json();
+      const summary = `Attached file: **${file.name}**\n\nDataset uploaded successfully — **${dataset.rows} rows**, **${dataset.columns} columns**.`;
+      
+      setPendingFile({ name: file.name, summary });
+      toast.success(`${file.name} attached as context.`);
+    } catch (err: any) {
+      toast.error(`Upload failed: ${err.message}`);
+    } finally {
       setIsUploading(false);
-      const userMsg: ChatMessage = { 
-        id: Date.now().toString(),
-        role: 'user', 
-        content: `Attached file: **${file.name}**\n\nAnalyze this dataset please.`,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, userMsg]);
-      toast.success(`${file.name} attached to context.`);
       if (fileInputRef.current) fileInputRef.current.value = '';
-    }, 1000);
+    }
   };
 
   const handleSubmit = async (e?: React.FormEvent, directInput?: string) => {
     e?.preventDefault();
     const finalInput = directInput || input;
     if (!finalInput.trim() || isLoading) return;
+
+    if (!isPro && recentMessagesCount >= 5) {
+      toast.error("Message limit reached!", {
+        description: "You have reached the limit of 5 messages per hour. Upgrade to PRO for unlimited analysis.",
+        action: {
+          label: "Upgrade",
+          onClick: () => {
+            localStorage.setItem('ct_user_tier', 'pro');
+            toast.success("Account upgraded to PRO!");
+            window.dispatchEvent(new Event('storage'));
+            window.location.reload();
+          }
+        }
+      });
+      return;
+    }
 
     if (tokens <= 0) {
       toast.error("You've run out of tokens!", {
@@ -310,13 +436,16 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
       return;
     }
 
-    const query = finalInput;
+    const query = pendingFile ? `${pendingFile.summary}\n\nUser Question: ${finalInput}` : finalInput;
+    
     const userMessage: ChatMessage = { 
       id: Date.now().toString(),
       role: 'user', 
       content: query,
       timestamp: new Date()
     };
+    
+    setPendingFile(null);
     
     let newMessages: ChatMessage[];
     if (editingMessageId) {
@@ -331,6 +460,16 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
     setInput('');
     setIsLoading(true);
 
+    // Track for rate limiting
+    if (!isPro) {
+      try {
+        const history = JSON.parse(localStorage.getItem('ct_msg_history') || '[]');
+        history.push(Date.now());
+        localStorage.setItem('ct_msg_history', JSON.stringify(history));
+        setRecentMessagesCount(history.length);
+      } catch {}
+    }
+
     try {
       let assistantContent = '';
       const assistantId = (Date.now() + 1).toString();
@@ -342,19 +481,26 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
         reasoning: isAdvancedReasoning ? "⚙ Establishing data pathways...\n⚙ Mapping correlations..." : undefined
       }]);
 
-      await generateStreamResponse(newMessages.map(m => ({ role: m.role, content: m.content })) as any, (chunk) => {
-        assistantContent += chunk;
-        setMessages(prev => {
-          const next = [...prev];
-          const assistantMsgIdx = next.findIndex(m => m.id === assistantId);
-          if (assistantMsgIdx !== -1) {
-            next[assistantMsgIdx] = { ...next[assistantMsgIdx], content: assistantContent };
-          }
-          return next;
-        });
-      });
+      await generateStreamResponse(
+        newMessages.map(m => ({ role: m.role, content: m.content })) as any,
+        (chunk) => {
+          assistantContent += chunk;
+          setMessages(prev => {
+            const next = [...prev];
+            const assistantMsgIdx = next.findIndex(m => m.id === assistantId);
+            if (assistantMsgIdx !== -1) {
+              next[assistantMsgIdx] = { ...next[assistantMsgIdx], content: assistantContent };
+            }
+            return next;
+          });
+        },
+        getToken,
+        activeAgent,
+        activeTools,
+        activeConnectors
+      );
 
-      // Token deduction (1 token per analysis)
+      // Token deduction (1 token per analysis) — persisted to localStorage via useEffect
       setTokens(prev => Math.max(0, prev - 1));
 
       // After successful response, maybe suggest follow-ups (Mocked)
@@ -412,6 +558,9 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
     if (window.confirm("Are you sure you want to clear this conversation?")) {
       setMessages([]);
       setInput('');
+      localStorage.removeItem('ct_chat_messages');
+      localStorage.removeItem('ct_active_tools');
+      localStorage.removeItem('ct_active_connectors');
       toast.info("Conversation cleared.");
     }
   };
@@ -534,6 +683,29 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
           </div>
         </div>
 
+        {/* Pro Banner if not Pro */}
+        {!isPro && (
+          <div className="mx-4 mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 opacity-20 group-hover:rotate-12 transition-transform duration-500">
+              <Zap className="w-16 h-16" />
+            </div>
+            <h4 className="text-xs font-black uppercase tracking-widest mb-1">Unlock Pro Power</h4>
+            <p className="text-[10px] opacity-80 mb-3 font-medium">Remove the 5 msg/hr limit and get advanced reasoning.</p>
+            <button 
+              onClick={() => {
+                const newTier = 'pro';
+                localStorage.setItem('ct_user_tier', newTier);
+                toast.success("Account upgraded to PRO tier!");
+                window.dispatchEvent(new Event('storage'));
+                window.location.reload();
+              }}
+              className="w-full py-2 bg-white text-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-opacity-90 transition-all"
+            >
+              Upgrade Now
+            </button>
+          </div>
+        )}
+
         {/* Pin Area */}
         <AnimatePresence>
           {messages.some(m => m.isPinned) && (
@@ -556,7 +728,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
           )}
         </AnimatePresence>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth" ref={scrollRef}>
+        <ReactLenis className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth" ref={scrollRef}>
           {messages.map((msg, i) => (
             <motion.div 
               key={msg.id}
@@ -580,7 +752,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
                     <User className="w-5 h-5" />
                   )
                 ) : (
-                  <Bot className="w-5 h-5" />
+                  <RobotAvatar className="w-full h-full" />
                 )}
               </div>
               <div className={cn(
@@ -672,8 +844,8 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
           ))}
           {isLoading && (
             <div className="flex gap-4 sm:gap-6">
-              <div className="w-10 h-10 rounded-2xl bg-slate-900 dark:bg-indigo-600 flex items-center justify-center text-white shrink-0 animate-pulse">
-                <Bot className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shrink-0">
+                <RobotAvatar className="w-full h-full" />
               </div>
               <div className="flex items-center gap-2 px-2">
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
@@ -682,7 +854,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
               </div>
             </div>
           )}
-        </div>
+        </ReactLenis>
 
         <div className="p-4 border-t border-slate-100 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md">
            <div className="w-full px-4 sm:px-6 lg:px-10 space-y-3">
@@ -703,26 +875,83 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
 
               {/* Chat input — same style as home */}
               <div className="bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-zinc-800 p-2 transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
-                {/* Active Agent Badge */}
-                <AnimatePresence>
-                  {activeAgent && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="flex items-center gap-2 px-5 pt-3 pb-0"
-                    >
-                      <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-full px-3 py-1 text-xs font-bold">
-                        <Bot className="w-3.5 h-3.5" />
+                {/* Active Context Badges */}
+                <div className="flex flex-wrap items-center gap-2 px-5 pt-3 pb-0">
+                  <AnimatePresence>
+                    {activeAgent && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-full px-3 py-1 text-[10px] font-bold"
+                      >
+                        <Bot className="w-3 h-3" />
                         <span>Agent: {activeAgent}</span>
                         <button onClick={() => setActiveAgent(null)} className="ml-1 text-indigo-400 hover:text-indigo-700 transition-colors">
                           <X className="w-3 h-3" />
                         </button>
-                      </div>
-                      <span className="text-[10px] text-slate-400 font-medium">will handle your query</span>
-                    </motion.div>
+                      </motion.div>
+                    )}
+                    {activeConnectors.map(conn => (
+                      <motion.div
+                        key={conn}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 rounded-full px-3 py-1 text-[10px] font-bold"
+                      >
+                        <Cable className="w-3 h-3" />
+                        <span>{conn}</span>
+                        <button onClick={() => handleToggleConnector(conn)} className="ml-1 text-emerald-400 hover:text-emerald-700 transition-colors">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </motion.div>
+                    ))}
+                    {activeTools.map(tool => (
+                      <motion.div
+                        key={tool}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 rounded-full px-3 py-1 text-[10px] font-bold"
+                      >
+                        <Construction className="w-3 h-3" />
+                        <span>{tool}</span>
+                        <button onClick={() => handleToggleTool(tool)} className="ml-1 text-amber-400 hover:text-amber-700 transition-colors">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </motion.div>
+                    ))}
+                    {pendingFile && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-full px-3 py-1 text-[10px] font-bold"
+                      >
+                        <FilePlus className="w-3 h-3" />
+                        <span>File: {pendingFile.name}</span>
+                        <button onClick={() => setPendingFile(null)} className="ml-1 text-blue-400 hover:text-blue-700 transition-colors">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  {(activeAgent || activeTools.length > 0 || activeConnectors.length > 0 || pendingFile) && (
+                    <span className="text-[10px] text-slate-400 font-medium">context active</span>
                   )}
-                </AnimatePresence>
+                  {!isPro && (
+                    <div className="ml-auto flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400 font-medium">Messages: {recentMessagesCount}/5 per hour</span>
+                      <div className="w-16 h-1 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                        <div 
+                          className={cn("h-full transition-all duration-500", recentMessagesCount >= 4 ? "bg-red-500" : "bg-indigo-500")} 
+                          style={{ width: `${(recentMessagesCount / 5) * 100}%` }} 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <textarea
                   value={input}
@@ -888,16 +1117,15 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
       {/* Input Box Static */}
       <div className="w-full mb-12 relative px-4 sm:px-6 lg:px-10">
          <div className="bg-white dark:bg-zinc-900 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-zinc-800 p-2 group transition-all focus-within:border-transparent">
-            {/* Active Agent Badge */}
-            <AnimatePresence>
-              {activeAgent && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="flex items-center gap-2 px-5 pt-4 pb-0"
-                >
-                  <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-full px-3 py-1 text-xs font-bold">
+            <div className="flex flex-wrap items-center gap-2 px-5 pt-4 pb-0">
+              <AnimatePresence>
+                {activeAgent && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-full px-3 py-1 text-xs font-bold"
+                  >
                     <Bot className="w-3.5 h-3.5" />
                     <span>Agent: {activeAgent}</span>
                     <button
@@ -906,11 +1134,30 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
                     >
                       <X className="w-3 h-3" />
                     </button>
-                  </div>
-                  <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">will handle your query</span>
-                </motion.div>
+                  </motion.div>
+                )}
+                {pendingFile && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 rounded-full px-3 py-1 text-xs font-bold"
+                  >
+                    <FilePlus className="w-3.5 h-3.5" />
+                    <span>File: {pendingFile.name}</span>
+                    <button
+                      onClick={() => setPendingFile(null)}
+                      className="ml-1 text-blue-400 hover:text-blue-700 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {(activeAgent || pendingFile) && (
+                <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">context active</span>
               )}
-            </AnimatePresence>
+            </div>
             <textarea 
               value={input}
               onChange={(e) => {
@@ -949,7 +1196,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
                           <div className="px-4 py-2 border-b border-slate-50 dark:border-zinc-800 mb-3">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attach Context</p>
                           </div>
-                          <div className="grid grid-cols-3 gap-2 px-3 pb-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                          <div className="grid grid-cols-3 gap-2 px-3 pb-2 max-h-[300px] overflow-y-auto custom-scrollbar" data-lenis-prevent>
                             {uploadOptions.map((opt, idx) => (
                               <button 
                                 key={idx} 

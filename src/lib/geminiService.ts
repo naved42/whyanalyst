@@ -25,7 +25,7 @@ export async function getAIMentorFeedback(
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: prompt,
     });
     return response.text?.trim() || "No feedback available.";
@@ -39,7 +39,7 @@ export async function askAIMentor(
   question: string,
   context: { columnName: string | null, audit: any, dataSample?: any[], model?: string }
 ) {
-  const modelToUse = context.model || "gemini-3-flash-preview";
+  const modelToUse = context.model || "gemini-1.5-flash";
 
   const prompt = `
     As a Senior AI Data Analyst, answer the user's data query.

@@ -19,7 +19,7 @@ export const ContactView = () => {
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-8 uppercase tracking-widest text-[14px]">Direct Channels</h3>
             <div className="space-y-8">
               {[
-                { icon: Mail, label: 'Email Support', value: 'support@julius.ai', desc: 'Average response: 2 hours' },
+                { icon: Mail, label: 'Email Support', value: 'naved.jatt.42@gmail.com', desc: 'Average response: 2 hours' },
                 { icon: Phone, label: 'Enterprise Line', value: '+1 (555) JULIUS-AI', desc: 'Mon-Fri, 9am - 5pm EST' },
                 { icon: MessageSquare, label: 'Community Slack', value: 'slack.julius.ai', desc: 'Get live help from peers' }
               ].map((item) => (

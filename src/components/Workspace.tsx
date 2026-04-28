@@ -31,7 +31,9 @@ import {
   History as HistoryIcon,
   Sun,
   Moon,
-  Clock
+  Clock,
+  CloudUpload,
+  ListTodo
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '../hooks/useTheme';
@@ -47,10 +49,12 @@ import { NotebookTemplatesView } from './views/NotebookTemplatesView';
 import { CommunityView } from './views/CommunityView';
 import { HomeView } from './views/HomeView';
 import { ContactView } from './views/ContactView';
+import { TodoView } from './views/TodoView';
 
 import { SettingsView } from './SettingsView';
 import { HistoryView } from './views/HistoryView';
 import { ReactLenis } from 'lenis/react';
+import { InteractiveRobot } from './InteractiveRobot';
 
 interface WorkspaceProps {
   user: any;
@@ -58,7 +62,7 @@ interface WorkspaceProps {
   activeDatasetId?: string | null;
 }
 
-export type ViewType = 'home' | 'files' | 'databases' | 'agents' | 'connect' | 'notebooks' | 'notebookTemplates' | 'community' | 'settings' | 'help' | 'contact' | 'history';
+export type ViewType = 'home' | 'files' | 'databases' | 'agents' | 'connect' | 'notebooks' | 'notebookTemplates' | 'community' | 'settings' | 'help' | 'contact' | 'history' | 'tasks';
 
 export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
   const { theme, toggleTheme } = useTheme();
@@ -68,6 +72,8 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = React.useState(false);
   const [initialPrompt, setInitialPrompt] = React.useState('');
+  const [isDraggingFile, setIsDraggingFile] = React.useState(false);
+  const roboConstraintsRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ datasets: any[], history: any[] }>({ datasets: [], history: [] });
@@ -80,8 +86,17 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
         setShowSearchResults(false);
       }
     };
+
+    const handleNavigate = (e: any) => {
+      if (e.detail) setActiveView(e.detail);
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('ct-navigate' as any, handleNavigate);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('ct-navigate' as any, handleNavigate);
+    };
   }, []);
 
   useEffect(() => {
@@ -159,6 +174,69 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
   const [customAvatar, setCustomAvatar] = useState<string | null>(null);
 
+  // Global File Drop Handling
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer?.types.includes('Files')) {
+        setIsDraggingFile(true);
+      }
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.clientX <= 0 || e.clientY <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+        setIsDraggingFile(false);
+      }
+    };
+
+    const handleDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDraggingFile(false);
+
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        const loadingToast = toast.loading(`Uploading ${file.name}...`);
+        
+        try {
+          const token = await getToken();
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+          });
+
+          if (!response.ok) throw new Error('Upload failed');
+          
+          const dataset = await response.json();
+          toast.success(`${file.name} integrated successfully`, { id: loadingToast });
+          
+          // Switch to files view to show the new dataset
+          setActiveView('files');
+        } catch (error) {
+          toast.error("Handshake failed during upload", { id: loadingToast });
+        }
+      }
+    };
+
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('dragleave', handleDragLeave);
+    window.addEventListener('drop', handleDrop);
+
+    return () => {
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('dragleave', handleDragLeave);
+      window.removeEventListener('drop', handleDrop);
+    };
+  }, [getToken]);
+
   const navItems = [
     { id: 'workspace', label: 'Workspace', icon: LayoutGrid, dropdown: [
       { id: 'home', label: 'Chat', icon: Home },
@@ -167,6 +245,7 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
     { id: 'files', label: 'Files', icon: FolderOpen },
     { id: 'databases', label: 'Databases', icon: Database },
     { id: 'history', label: 'History', icon: HistoryIcon },
+    { id: 'tasks', label: 'Mission Log', icon: ListTodo },
     { id: 'agents', label: 'Custom Agents', icon: Bot },
     { id: 'notebookTemplates', label: 'Notebook Templates', icon: Sparkles },
     { id: 'connect', label: 'Connect Data', icon: LinkIcon },
@@ -181,13 +260,14 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
     switch (activeView) {
       case 'home': return <HomeView initialPrompt={initialPrompt} onClearPrompt={() => setInitialPrompt('')} />;
       case 'files': return <FilesView />;
-      case 'databases': return <DatabasesView />;
-      case 'agents': return <CustomAgentsView />;
+      case 'databases': return <DatabasesView onNavigate={(view) => setActiveView(view)} />;
+      case 'agents': return <CustomAgentsView onLaunch={(prompt) => { setInitialPrompt(prompt); setActiveView('home'); }} />;
       case 'connect': return <ConnectDataView />;
       case 'notebooks': return <NotebooksView />;
-      case 'notebookTemplates': return <NotebookTemplatesView />;
+      case 'notebookTemplates': return <NotebookTemplatesView onLaunch={(prompt) => { setInitialPrompt(prompt); setActiveView('home'); }} />;
       case 'community': return <CommunityView />;
       case 'history': return <HistoryView onReRun={handleReRun} />;
+      case 'tasks': return <TodoView />;
       case 'contact': return <ContactView />;
       case 'help': return <ContactView />;
       case 'settings': return <SettingsView />;
@@ -197,6 +277,28 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
 
   return (
     <div className="flex h-screen w-full bg-brand-background dark:bg-zinc-950 overflow-hidden relative">
+      {/* Global File Drop Overlay */}
+      <AnimatePresence>
+        {isDraggingFile && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-indigo-600/20 backdrop-blur-md flex items-center justify-center border-4 border-dashed border-indigo-500 m-4 rounded-[2rem] pointer-events-none"
+          >
+            <div className="bg-white dark:bg-zinc-900 p-12 rounded-3xl shadow-2xl flex flex-col items-center gap-6 scale-110">
+              <div className="w-24 h-24 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-xl animate-bounce">
+                <CloudUpload className="w-12 h-12" />
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Drop to Analyze</h2>
+                <p className="text-slate-500 dark:text-zinc-400 text-sm">Release to instantly integrate your data source.</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* SideNavBar */}
       <aside 
         onClick={() => isSidebarCollapsed && setIsSidebarCollapsed(false)}
@@ -513,7 +615,12 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
                     className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-xl z-50 overflow-hidden py-2"
                   >
                     <div className="px-4 py-3 border-b border-slate-50 dark:border-zinc-800 mb-1">
-                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.displayName || 'Authorized User'}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.displayName || 'Authorized User'}</p>
+                        {localStorage.getItem('ct_user_tier') === 'pro' && (
+                          <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-tighter">PRO</span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
                     </div>
 
@@ -586,6 +693,13 @@ export const Workspace = ({ user, onLogout }: WorkspaceProps) => {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Floating Robot Assistant with Screen Constraints */}
+      <div ref={roboConstraintsRef} className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+        <div className="absolute bottom-24 right-8 pointer-events-auto hidden md:block">
+          <InteractiveRobot dragConstraints={roboConstraintsRef} />
+        </div>
+      </div>
     </div>
   );
 };

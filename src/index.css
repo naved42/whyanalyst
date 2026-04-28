@@ -40,6 +40,23 @@
     overflow-x: hidden;
   }
 
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
   :root {
     --brand-primary: #0f172a;
     --brand-on-primary: #ffffff;
@@ -106,13 +123,65 @@
 
   /* Glass Panel */
   .glass-panel {
-    @apply bg-white/70 backdrop-blur-md;
+    @apply bg-white/70 backdrop-blur-md will-change-transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
   .glass-panel-dark {
-    @apply bg-white/70 backdrop-blur-md;
+    @apply bg-white/70 backdrop-blur-md will-change-transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
   }
   .dark .glass-panel-dark {
-    @apply bg-zinc-900/50 backdrop-blur-md;
+    @apply bg-zinc-900/50 backdrop-blur-md will-change-transform;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* GPU acceleration for smooth scrolling */
+  .custom-scrollbar {
+    will-change: scroll-position;
+    transform: translateZ(0);
+  }
+
+  /* Optimize transitions */
+  .transition-colors {
+    will-change: color, background-color;
+  }
+
+  /* Hide scrollbar but keep scrollability */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Reduce motion for slower devices */
+  @media (prefers-reduced-motion: no-preference) {
+    html.lenis {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Performance optimizations for animations */
+  @supports (backdrop-filter: blur(1px)) {
+    .glass-panel,
+    .glass-panel-dark {
+      backdrop-filter: blur(8px);
+    }
+  }
+
+  /* Optimize button animations */
+  button {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* Fast transitions for interactive elements */
+  .active\:scale-\[0\.98\] {
+    transition: transform 0.1s ease-out;
   }
 }

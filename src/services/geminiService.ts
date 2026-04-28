@@ -8,7 +8,9 @@
 export async function generateChatResponse(
   messages: { role: 'user' | 'assistant' | 'system', content: string }[],
   getToken: () => Promise<string | null>,
-  agent?: string | null
+  agent?: string | null,
+  tools?: string[],
+  connectors?: string[]
 ): Promise<string> {
   const token = await getToken();
   if (!token) throw new Error("Not authenticated");
@@ -19,7 +21,7 @@ export async function generateChatResponse(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({ messages, agent })
+    body: JSON.stringify({ messages, agent, tools, connectors })
   });
 
   if (!response.ok) {
@@ -35,7 +37,9 @@ export async function generateStreamResponse(
   messages: { role: 'user' | 'assistant' | 'system', content: string }[],
   onChunk: (text: string) => void,
   getToken: () => Promise<string | null>,
-  agent?: string | null
+  agent?: string | null,
+  tools?: string[],
+  connectors?: string[]
 ): Promise<string> {
   const token = await getToken();
   if (!token) throw new Error("Not authenticated");
@@ -46,7 +50,7 @@ export async function generateStreamResponse(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({ messages, agent })
+    body: JSON.stringify({ messages, agent, tools, connectors })
   });
 
   if (!response.ok) {

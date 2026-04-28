@@ -19,9 +19,21 @@ import {
   ExternalLink,
   Table
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
-export const DatabasesView = () => {
+interface DatabasesViewProps {
+  onNavigate?: (view: any) => void;
+}
+
+export const DatabasesView = ({ onNavigate }: DatabasesViewProps) => {
+  const [activeConnectors, setActiveConnectors] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem('ct_active_connectors');
+      if (saved) setActiveConnectors(JSON.parse(saved));
+    } catch {}
+  }, []);
   return (
     <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
       {/* Header Section */}
@@ -30,7 +42,10 @@ export const DatabasesView = () => {
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Databases</h2>
           <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1 font-medium">Manage and monitor your enterprise data connections.</p>
         </div>
-        <button className="w-full sm:w-auto bg-slate-900 dark:bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-indigo-700 transition-all shadow-lg active:scale-95">
+        <button 
+          onClick={() => onNavigate?.('connect')}
+          className="w-full sm:w-auto bg-slate-900 dark:bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-black dark:hover:bg-indigo-700 transition-all shadow-lg active:scale-95"
+        >
           <Plus className="w-4 h-4" />
           Connect New Source
         </button>
@@ -69,9 +84,14 @@ export const DatabasesView = () => {
                   <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-bold uppercase tracking-tighter mt-0.5">aws-east-1.postgresql.com</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-[9px] font-black border border-emerald-100 dark:border-emerald-800/30 uppercase tracking-widest">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                ACTIVE
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1 rounded-lg text-[9px] font-black border uppercase tracking-widest",
+                activeConnectors.includes('PostgreSQL') 
+                  ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30"
+                  : "bg-slate-50 dark:bg-zinc-800 text-slate-400 dark:text-zinc-500 border-slate-100 dark:border-zinc-800"
+              )}>
+                <span className={cn("w-1.5 h-1.5 rounded-full", activeConnectors.includes('PostgreSQL') ? "bg-emerald-500 animate-pulse" : "bg-slate-300")}></span>
+                {activeConnectors.includes('PostgreSQL') ? 'ACTIVE' : 'DISCONNECTED'}
               </div>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6 border-y border-slate-50 dark:border-zinc-800 mb-6">
@@ -107,7 +127,12 @@ export const DatabasesView = () => {
           <div className="space-y-4 mb-8">
             <div className="flex justify-between text-xs sm:text-sm font-medium">
               <span className="text-slate-400 dark:text-zinc-500">Connection</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Verified</span>
+                <span className={cn(
+                  "font-bold uppercase tracking-tighter",
+                  activeConnectors.includes('Snowflake') ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"
+                )}>
+                  {activeConnectors.includes('Snowflake') ? 'Verified' : 'Required'}
+                </span>
             </div>
             <div className="flex justify-between text-xs sm:text-sm font-medium">
               <span className="text-slate-400 dark:text-zinc-500">Tables</span>

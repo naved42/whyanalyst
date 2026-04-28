@@ -42,7 +42,7 @@ import {
   FileJson,
   Folder
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { 
@@ -75,6 +75,7 @@ interface Dataset {
   size?: string;
   status: 'Ready' | 'Processing' | 'Error';
   versionCount?: number;
+  isArchived?: boolean;
 }
 
 export const FilesView = () => {
@@ -126,14 +127,21 @@ export const FilesView = () => {
     try {
       const res = await fetch('/api/datasets');
       const data = await res.json();
-      // Enrich data for logic
-      const enriched = data.map((d: any) => ({
-        ...d,
-        type: 'Dataset',
-        size: formatSize(d.rows),
-        status: 'Ready',
-        versionCount: Math.floor(Math.random() * 5) + 1
-      }));
+      // Enrich data for logic with variety
+      const enriched = data.map((d: any, index: number) => {
+        let type: 'Dataset' | 'Model Weight' | 'Log' = 'Dataset';
+        if (d.name.toLowerCase().includes('weight') || d.name.toLowerCase().includes('model') || index % 10 === 7) type = 'Model Weight';
+        if (d.name.toLowerCase().includes('log') || index % 10 === 9) type = 'Log';
+        
+        return {
+          ...d,
+          type,
+          size: formatSize(d.rows),
+          status: 'Ready',
+          versionCount: Math.floor(Math.random() * 5) + 1,
+          isArchived: index % 15 === 0 // Mock some archived files
+        };
+      });
       setDatasets(enriched);
     } catch (error) {
       console.error("Failed to fetch datasets", error);
@@ -282,11 +290,16 @@ export const FilesView = () => {
     
     if (activeCategory !== 'All') {
       result = result.filter(f => {
-          if (activeCategory === 'Datasets') return f.type === 'Dataset';
-          if (activeCategory === 'Model Weights') return f.type === 'Model Weight';
-          if (activeCategory === 'Logs') return f.type === 'Log';
-          return true;
+          if (activeCategory === 'Datasets') return f.type === 'Dataset' && !f.isArchived;
+          if (activeCategory === 'Model Weights') return f.type === 'Model Weight' && !f.isArchived;
+          if (activeCategory === 'Logs') return f.type === 'Log' && !f.isArchived;
+          if (activeCategory === 'Archived') return f.isArchived;
+          return !f.isArchived;
       });
+    } else {
+      // "All" view shows everything except archived by default, or just everything?
+      // Usually "All" doesn't show archived unless requested.
+      result = result.filter(f => !f.isArchived);
     }
 
     if (searchQuery) {
@@ -408,7 +421,9 @@ export const FilesView = () => {
                 {item.label}
               </div>
               <Badge variant="secondary" className="text-[10px] bg-slate-100 dark:bg-zinc-800 text-slate-500 rounded-lg">
-                {item.id === 'All' ? datasets.length : datasets.filter(d => d.type === item.id.replace('s', '')).length}
+                {item.id === 'All' ? datasets.filter(d => !d.isArchived).length : 
+                 item.id === 'Archived' ? datasets.filter(d => d.isArchived).length :
+                 datasets.filter(d => d.type === item.id.replace('s', '') && !d.isArchived).length}
               </Badge>
             </button>
           ))}
@@ -1061,3 +1076,4 @@ export const FilesView = () => {
     </div>
   );
 };
+

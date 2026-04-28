@@ -11,12 +11,13 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isSignedIn: boolean;
+  isEmailVerified: boolean;
   isAdmin: boolean;
   signOut: () => Promise<void>;
   getToken: () => Promise<string | null>;
   refreshUser: () => Promise<void>;
   role: 'admin' | 'user';
-  status: 'active' | 'loading' | 'unauthenticated';
+  status: 'active' | 'loading' | 'unauthenticated' | 'unverified';
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -42,8 +43,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const isAdmin = useMemo(() => {
-    // For now, treat the creator as admin, or use a specific email
     return user?.email === 'muhammadnaveedalijatt786@gmail.com';
+  }, [user]);
+
+  const isEmailVerified = useMemo(() => {
+    if (!user) return false;
+    // Google OAuth accounts are always verified (pre-verified by Google)
+    const isGoogleAccount = user.providerData?.some((provider: any) => provider.providerId === 'google.com');
+    return user.emailVerified || !!isGoogleAccount;
   }, [user]);
 
   const signOut = async () => {
@@ -58,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const refreshUser = async () => {
     if (auth.currentUser) {
       await auth.currentUser.reload();
-      setUser({ ...auth.currentUser }); // Spread to create a new reference and trigger re-render
+      setUser({ ...auth.currentUser });
     }
   };
 
@@ -66,12 +73,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     loading,
     isSignedIn: !!user,
+    isEmailVerified,
     isAdmin,
     signOut,
     getToken,
     refreshUser,
     role: isAdmin ? 'admin' as const : 'user' as const,
-    status: loading ? 'loading' as const : (user ? 'active' as const : 'unauthenticated' as const),
+    status: loading ? 'loading' as const : (user ? (isEmailVerified ? 'active' as const : 'unverified' as const) : 'unauthenticated' as const),
   };
 
   return (

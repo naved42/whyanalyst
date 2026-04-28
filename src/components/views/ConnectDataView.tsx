@@ -38,7 +38,7 @@ import {
   User,
   CreditCard
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
 import { 
@@ -264,7 +264,7 @@ export const ConnectDataView = () => {
                 <div className="px-4 py-2 border-b border-slate-50 dark:border-zinc-800">
                   <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Global Results</p>
                 </div>
-                <div className="max-h-64 overflow-y-auto">
+                <div className="max-h-64 overflow-y-auto" data-lenis-prevent>
                   {filteredConnectors.length > 0 ? (
                     filteredConnectors.slice(0, 5).map(c => (
                       <button 
@@ -321,7 +321,7 @@ export const ConnectDataView = () => {
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Notifications</p>
                     <button className="text-[10px] font-bold text-indigo-500 hover:underline">Mark all read</button>
                   </div>
-                  <div className="max-h-80 overflow-y-auto">
+                  <div className="max-h-80 overflow-y-auto" data-lenis-prevent>
                     {[
                       { title: 'Sync Successful', desc: 'Amazon S3 incremental sync finished.', time: '12m' },
                       { title: 'New Node Available', desc: 'Snowflake Enterprise v2.4 connector live.', time: '1h' },

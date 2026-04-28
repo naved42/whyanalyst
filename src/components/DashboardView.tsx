@@ -16,7 +16,7 @@ import {
   TooltipContent, 
   TooltipTrigger 
 } from './ui/tooltip';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface Summary {
   totalDatasets: number;

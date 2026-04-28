@@ -10,7 +10,7 @@ import {
   PieChart,
   MousePointer2
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
 interface Step {

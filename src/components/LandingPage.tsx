@@ -22,6 +22,7 @@ import {
   LineChart,
 } from 'lucide-react';
 import { Button } from './ui/button';
+import { InteractiveRobot } from './InteractiveRobot';
 
 interface LandingPageProps {
   onAuth: () => void;
@@ -30,6 +31,11 @@ interface LandingPageProps {
 export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isWatchingLogin, setIsWatchingLogin] = React.useState(false);
+  const heroRoboConstraintsRef = React.useRef(null);
+
+  const startWatching = () => setIsWatchingLogin(true);
+  const stopWatching = () => setIsWatchingLogin(false);
 
   const switchView = (view: 'home' | 'pricing' | 'resources' | 'contact') => {
     setCurrentView(view);
@@ -65,7 +71,12 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             Connect your data sources and get professional-grade insights in seconds. Ask questions in plain English, and Julius handles the complex modeling, cleaning, and visualization.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4 pt-4">
-            <button onClick={onAuth} className="w-full sm:w-auto bg-brand-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all">
+            <button 
+              onClick={onAuth} 
+              onMouseEnter={startWatching}
+              onMouseLeave={stopWatching}
+              className="w-full sm:w-auto bg-brand-primary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-brand-primary/20 hover:-translate-y-1 active:scale-95 transition-all"
+            >
               Start Analyzing Free
             </button>
             <button onClick={onAuth} className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg border border-slate-200 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 group">
@@ -75,22 +86,66 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           </div>
         </motion.div>
         <motion.div 
+          ref={heroRoboConstraintsRef}
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="lg:w-1/2 w-full relative"
+          className="lg:w-1/2 w-full relative h-[500px] sm:h-[600px] flex items-center justify-center overflow-hidden"
         >
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200/50 bg-white p-2">
-            <img 
-              alt="Analysis Interface Preview" 
-              className="w-full rounded-xl object-cover aspect-video shadow-inner" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZhGCM9_CIfm4TgtM_FA1tKpgjO1D--6bUtdTCuJJGKRNUshwFyftqE0Z3kbd8BHQtyyk6Rg9CfpGbbjgsRX8sh_-ujf-apq_DFo1emN5-tySrHdCn1sXYh4yaLxtjC2RkGoyVR__XUlJWvnj10_f1tS9B5sfWeov-NJwmHnpgrhD2RU4Pbo97FBaECT51rneVWrCvWN82hywqDJYCZ0pEQ9u27i98ncCSTwmlz1aWHzc9ws2l6-TL7SAPLmLe6U01Q6iMI2Dca7E"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/10 to-transparent pointer-events-none"></div>
+          <div className="relative z-10">
+            <InteractiveRobot isWatchingLogin={isWatchingLogin} dragConstraints={heroRoboConstraintsRef} />
           </div>
+
+          {/* Floating Data Elements */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Element 1: Bar Chart */}
+            <motion.div 
+              animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-[20%] left-[10%] p-4 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-slate-100 dark:border-zinc-800"
+            >
+              <div className="flex items-end gap-1 h-8 w-12">
+                <div className="w-2 h-[40%] bg-blue-500 rounded-full"></div>
+                <div className="w-2 h-[80%] bg-indigo-500 rounded-full"></div>
+                <div className="w-2 h-[60%] bg-blue-400 rounded-full"></div>
+              </div>
+            </motion.div>
+
+            {/* Element 2: Code Snippet */}
+            <motion.div 
+              animate={{ y: [0, 20, 0], x: [0, 10, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-[25%] left-[5%] p-3 bg-slate-900 rounded-xl shadow-2xl border border-white/10 scale-90"
+            >
+              <div className="space-y-1.5">
+                <div className="w-8 h-1 bg-blue-400 rounded-full"></div>
+                <div className="w-12 h-1 bg-slate-600 rounded-full"></div>
+                <div className="w-10 h-1 bg-indigo-400 rounded-full"></div>
+              </div>
+            </motion.div>
+
+            {/* Element 3: Pie Chart */}
+            <motion.div 
+              animate={{ scale: [1, 1.1, 1], y: [0, -15, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="absolute top-[15%] right-[10%] p-4 bg-white dark:bg-zinc-900 rounded-full shadow-xl border border-slate-100 dark:border-zinc-800"
+            >
+              <div className="w-10 h-10 rounded-full border-[6px] border-emerald-500 border-t-transparent -rotate-45"></div>
+            </motion.div>
+
+            {/* Element 4: Accuracy Badge */}
+            <motion.div 
+              animate={{ y: [0, 15, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+              className="absolute bottom-[20%] right-[5%] px-4 py-2 bg-indigo-600 rounded-full shadow-lg shadow-indigo-500/20 text-white text-[10px] font-black uppercase tracking-widest"
+            >
+              99.9% Accuracy
+            </motion.div>
+          </div>
+
           {/* Decorative blurs */}
-          <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-primary/20 blur-3xl -z-10 rounded-full animate-pulse"></div>
-          <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-blue-400/20 blur-3xl -z-10 rounded-full"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-brand-primary/10 blur-[100px] -z-10 rounded-full animate-pulse"></div>
+          <div className="absolute top-[30%] right-[20%] w-40 h-40 bg-blue-400/5 blur-[80px] -z-10 rounded-full"></div>
         </motion.div>
       </section>
 
@@ -421,7 +476,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                 </div>
                 <div>
                   <h4 className="font-bold text-lg mb-1">Email Our Team</h4>
-                  <p className="text-brand-surface-variant text-sm">hello@cognitivetech.ai</p>
+                  <p className="text-brand-surface-variant text-sm">naved.jatt.42@gmail.com</p>
                   <p className="text-brand-surface-variant text-sm">support@cognitivetech.ai</p>
                 </div>
               </div>
@@ -518,8 +573,22 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             </button>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={onAuth} className="text-slate-600 dark:text-slate-400 font-medium hover:text-brand-primary px-4 py-2 transition-colors duration-200">Sign In</button>
-            <button onClick={onAuth} className="bg-brand-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20">Get Started</button>
+            <button 
+              onClick={onAuth} 
+              onMouseEnter={startWatching}
+              onMouseLeave={stopWatching}
+              className="text-slate-600 dark:text-slate-400 font-medium hover:text-brand-primary px-4 py-2 transition-colors duration-200"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={onAuth} 
+              onMouseEnter={startWatching}
+              onMouseLeave={stopWatching}
+              className="bg-brand-primary text-white px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-brand-primary/20"
+            >
+              Get Started
+            </button>
           </div>
         </div>
       </nav>
@@ -549,7 +618,12 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                 Join over 50,000 analysts using WhyAnalyst to accelerate their research and automate decision-making.
               </p>
               <div className="pt-8">
-                <button onClick={onAuth} className="bg-white text-brand-primary px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40">
+                <button 
+                  onClick={onAuth} 
+                  onMouseEnter={startWatching}
+                  onMouseLeave={stopWatching}
+                  className="bg-white text-brand-primary px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40"
+                >
                   Start Your Journey Free
                 </button>
               </div>

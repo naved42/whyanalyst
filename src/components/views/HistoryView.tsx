@@ -14,7 +14,7 @@ import {
   Link as LinkIcon,
   RefreshCcw
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ export const HistoryView = ({ onReRun }: HistoryViewProps) => {
   const [history, setHistory] = React.useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [activeFilter, setActiveFilter] = React.useState('All Activity');
 
   const fetchHistory = async () => {
     try {
@@ -75,10 +76,18 @@ export const HistoryView = ({ onReRun }: HistoryViewProps) => {
     }
   };
 
-  const filteredHistory = history.filter(item => 
-    item.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.datasetName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredHistory = history.filter(item => {
+    const matchesSearch = item.query.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         item.datasetName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (activeFilter === 'All Activity') return matchesSearch;
+    if (activeFilter === 'Chat Queries') return matchesSearch && item.datasetName === 'Chat Interaction';
+    if (activeFilter === 'Data Uploads') return matchesSearch && item.datasetName !== 'Chat Interaction';
+    // 'Connections' might not be fully implemented in the data yet, but we'll filter it out for now
+    if (activeFilter === 'Connections') return false; 
+    
+    return matchesSearch;
+  });
 
   return (
     <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
@@ -116,16 +125,17 @@ export const HistoryView = ({ onReRun }: HistoryViewProps) => {
             </div>
             <div className="p-2 space-y-1">
               {[
-                { label: 'All Activity', icon: HistoryIcon, active: true },
-                { label: 'Chat Queries', icon: FileText, active: false },
-                { label: 'Data Uploads', icon: Table, active: false },
-                { label: 'Connections', icon: LinkIcon, active: false },
+                { label: 'All Activity', icon: HistoryIcon },
+                { label: 'Chat Queries', icon: FileText },
+                { label: 'Data Uploads', icon: Table },
+                { label: 'Connections', icon: LinkIcon },
               ].map((filter) => (
                 <button 
                   key={filter.label}
+                  onClick={() => setActiveFilter(filter.label)}
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                    filter.active 
+                    activeFilter === filter.label 
                       ? "bg-slate-900 dark:bg-indigo-600 text-white shadow-lg" 
                       : "text-slate-500 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white"
                   )}

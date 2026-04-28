@@ -29,7 +29,7 @@ import {
   TooltipContent, 
   TooltipTrigger 
 } from './ui/tooltip';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
@@ -462,7 +462,7 @@ export const AnalysisPanel = ({ insights, charts, code, collapsed, setCollapsed,
                     <span className="text-[9px] font-mono text-zinc-400">{selectedScalingCols.size} Selected</span>
                   </div>
                   
-                  <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2">
+                  <div className="max-h-[200px] overflow-y-auto space-y-2 pr-2" data-lenis-prevent>
                     {numericCols.map((col: any) => (
                       <button 
                         key={col.name}

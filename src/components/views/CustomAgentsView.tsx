@@ -17,9 +17,13 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
-export const CustomAgentsView = () => {
+interface CustomAgentsViewProps {
+  onLaunch?: (prompt: string) => void;
+}
+
+export const CustomAgentsView = ({ onLaunch }: CustomAgentsViewProps) => {
   return (
     <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen">
       {/* Header Section */}
@@ -57,7 +61,10 @@ export const CustomAgentsView = () => {
                 ))}
               </div>
             </div>
-            <button className="w-full bg-slate-900 dark:bg-indigo-600 text-white font-bold text-sm py-3.5 rounded-xl hover:bg-black dark:hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/10">
+            <button 
+              onClick={() => onLaunch?.("I want you to act as my Senior Financial Analyst. Please analyze my current datasets for risk modeling and SEC compliance.")}
+              className="w-full bg-slate-900 dark:bg-indigo-600 text-white font-bold text-sm py-3.5 rounded-xl hover:bg-black dark:hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-black/10"
+            >
               <span>Quick Launch</span>
               <Bolt className="w-4 h-4" />
             </button>
@@ -124,7 +131,10 @@ export const CustomAgentsView = () => {
               </div>
               <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium mb-8 line-clamp-2 leading-relaxed">{agent.desc}</p>
               
-              <button className="mt-auto py-3 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 active:bg-slate-100 dark:active:bg-zinc-700 transition-all flex items-center justify-center gap-2 group/btn">
+              <button 
+                onClick={() => onLaunch?.(`Deploying ${agent.name}: ${agent.desc}`)}
+                className="mt-auto py-3 border border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300 font-bold text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 active:bg-slate-100 dark:active:bg-zinc-700 transition-all flex items-center justify-center gap-2 group/btn"
+              >
                 Launch Agent
                 <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </button>

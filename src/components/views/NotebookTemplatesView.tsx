@@ -14,9 +14,13 @@ import {
   LayoutGrid,
   ChevronDown
 } from 'lucide-react';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
-export const NotebookTemplatesView = () => {
+interface NotebookTemplatesViewProps {
+  onLaunch?: (prompt: string) => void;
+}
+
+export const NotebookTemplatesView = ({ onLaunch }: NotebookTemplatesViewProps) => {
   return (
     <div className="p-4 sm:p-6 lg:p-10 w-full min-h-screen font-sans">
       {/* Page Header */}
@@ -84,7 +88,12 @@ export const NotebookTemplatesView = () => {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
-                <button className="flex-1 px-8 py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-black/10 active:scale-95 transition-all hover:bg-black dark:hover:bg-indigo-700 uppercase tracking-widest">Use Template</button>
+                <button 
+                  onClick={() => onLaunch?.("I want to use the Customer Churn Prediction Workflow. Please set up the pipeline for predicting subscription churn using XGBoost.")}
+                  className="flex-1 px-8 py-4 bg-slate-900 dark:bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-xl shadow-black/10 active:scale-95 transition-all hover:bg-black dark:hover:bg-indigo-700 uppercase tracking-widest"
+                >
+                  Use Template
+                </button>
                 <button className="flex-1 px-8 py-4 border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 rounded-xl text-sm font-bold hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all uppercase tracking-widest">Live Demo</button>
               </div>
             </div>
@@ -131,7 +140,12 @@ export const NotebookTemplatesView = () => {
               <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-3 leading-tight tracking-tight group-hover:text-slate-600 dark:group-hover:text-zinc-400 transition-colors">{card.title}</h4>
               <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium mb-8 line-clamp-2 leading-relaxed">{card.desc}</p>
             </div>
-            <button className="w-full py-4 bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-zinc-300 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95 group-hover:shadow-lg">Use Template</button>
+            <button 
+              onClick={() => onLaunch?.(`Using template: ${card.title}. ${card.desc}`)}
+              className="w-full py-4 bg-slate-50 dark:bg-zinc-800 text-slate-900 dark:text-zinc-300 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-900 dark:hover:bg-indigo-600 hover:text-white transition-all shadow-sm active:scale-95 group-hover:shadow-lg"
+            >
+              Use Template
+            </button>
           </div>
         ))}
       </div>
