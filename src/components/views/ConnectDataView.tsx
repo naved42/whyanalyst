@@ -207,18 +207,32 @@ export const ConnectDataView = () => {
       setActivityLogs(prev => [newLog, ...prev]);
 
       if (user) {
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        await fetch('/api/history', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            query: `Connected data source: ${connectingSource.name}`,
-            datasetId: 'external-integration',
-            datasetName: connectingSource.name,
-            result: 'Connection established and verified.'
-          })
-        });
+        try {
+          const token = await getToken();
+          if (!token) {
+            console.warn("No auth token available, skipping history save");
+          } else {
+            const headers: HeadersInit = { 'Content-Type': 'application/json' };
+            headers['Authorization'] = `Bearer ${token}`;
+            const res = await fetch('/api/history', {
+              method: 'POST',
+              headers,
+              body: JSON.stringify({
+                query: `Connected data source: ${connectingSource.name}`,
+                datasetId: 'external-integration',
+                datasetName: connectingSource.name,
+                result: 'Connection established and verified.'
+              })
+            });
+            
+            if (!res.ok) {
+              const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+              console.error("Failed to save history:", res.status, error);
+            }
+          }
+        } catch (historyErr) {
+          console.error("Failed to save connection history:", historyErr);
+        }
       }
 
       setIsSyncing(false);

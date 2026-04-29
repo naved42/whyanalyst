@@ -532,19 +532,28 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
       // Save to history
       try {
         const token = await getToken();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        
-        await fetch('/api/history', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            query: query,
-            datasetId: 'default',
-            datasetName: 'Chat Interaction',
-            result: assistantContent
-          })
-        });
+        if (!token) {
+          console.warn("No auth token available, skipping history save");
+        } else {
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          headers['Authorization'] = `Bearer ${token}`;
+          
+          const res = await fetch('/api/history', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              query: query,
+              datasetId: 'default',
+              datasetName: 'Chat Interaction',
+              result: assistantContent
+            })
+          });
+          
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+            console.error("Failed to save history:", res.status, error);
+          }
+        }
       } catch (err) {
         console.error("Failed to save history:", err);
       }

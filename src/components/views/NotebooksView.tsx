@@ -52,20 +52,29 @@ export const NotebooksView = () => {
     if (user) {
       try {
         const token = await getToken();
-        const headers: HeadersInit = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        await fetch('/api/history', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            query: `Created notebook: ${newTitle}`,
-            datasetId: 'notebook-resource',
-            datasetName: 'Notebooks',
-            result: 'New workspace initialized.'
-          })
-        });
+        if (!token) {
+          console.warn("No auth token available, skipping history save");
+        } else {
+          const headers: HeadersInit = { 'Content-Type': 'application/json' };
+          headers['Authorization'] = `Bearer ${token}`;
+          const res = await fetch('/api/history', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              query: `Created notebook: ${newTitle}`,
+              datasetId: 'notebook-resource',
+              datasetName: 'Notebooks',
+              result: 'New workspace initialized.'
+            })
+          });
+          
+          if (!res.ok) {
+            const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+            console.error("Failed to save notebook history:", res.status, error);
+          }
+        }
       } catch (error) {
-        console.error("Failed to log notebook creation");
+        console.error("Failed to log notebook creation:", error);
       }
     }
   };
