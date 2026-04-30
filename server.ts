@@ -278,6 +278,8 @@ const db = {
 };
 
 async function startServer() {
+  console.log("📝 Setting up Express middleware...");
+  
   app.use(express.json({ limit: '10mb' }));
   
   // ============================================================
@@ -369,51 +371,7 @@ async function startServer() {
   // ============================================================
   // PYTHON BACKEND (Windows-compatible)
   // ============================================================
-  const startPythonBackend = () => {
-    // On Windows, use 'python' first; on Unix, use 'python3' first
-    const primaryCmd = process.platform === 'win32' ? 'python' : 'python3';
-    const fallbackCmd = process.platform === 'win32' ? 'python3' : 'python';
 
-    const tryStartPython = (cmd: string, isFallback = false) => {
-      console.log(`Checking and installing Python dependencies using ${cmd}...`);
-      const install = spawn(cmd, ["-m", "pip", "install", "fastapi", "uvicorn", "pandas", "python-multipart"]);
-
-      install.on("error", (err: any) => {
-        if (err.code === 'ENOENT' && !isFallback) {
-          console.warn(`${cmd} not found, trying '${fallbackCmd}'...`);
-          tryStartPython(fallbackCmd, true);
-        } else {
-          console.error(`Failed to start ${cmd} for pip install:`, err.message);
-        }
-      });
-
-      install.stdout.on("data", (data) => console.log(`[pip] ${data}`));
-      install.stderr.on("data", (data) => console.error(`[pip-error] ${data}`));
-
-      install.on("close", (code) => {
-        if (code === 0) {
-          console.log(`Python dependencies verified/installed. Starting main.py using ${cmd}...`);
-          const pythonProcess = spawn(cmd, ["main.py"]);
-
-          pythonProcess.on("error", (err) => {
-            console.error(`Failed to start Python process (${cmd}):`, err.message);
-          });
-
-          pythonProcess.stdout.on("data", (data) => console.log(`[Python] ${data}`));
-          pythonProcess.stderr.on("data", (data) => console.error(`[Python stderr] ${data}`));
-          pythonProcess.on("close", (code) => console.log(`Python process exited with code ${code}`));
-        } else if (code !== null) {
-          console.error(`Pip installation process exited with code ${code}`);
-        }
-      });
-    };
-
-    try {
-      tryStartPython(primaryCmd);
-    } catch (e) {
-      console.error("Critical error starting Python backend:", e);
-    }
-  };
 
   // Proxy to Python FastAPI backend
   app.use('/api/python', createProxyMiddleware({
@@ -423,9 +381,9 @@ async function startServer() {
       '^/api/python': '/api/python', // Keep the path prefix
     },
     on: {
-      error: (err, req, res) => {
+      error: (err: any, req: any, res: any) => {
         console.error('Proxy to Python failed:', err.message);
-        if (!res.headersSent){
+        if (res && typeof res.headersSent !== 'undefined' && !res.headersSent) {
           (res as express.Response).status(502).json({ error: 'Python analysis engine is offline' });
         }
       }
@@ -621,12 +579,13 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`✅ Server running on port ${PORT}`);
   });
 }
-console.log("Booting application...");
+
+console.log("🚀 Booting application...");
 
 startServer().catch((err) => {
-  console.error("Fatal startup error:", err);
+  console.error("❌ Fatal startup error:", err);
   process.exit(1);
 });

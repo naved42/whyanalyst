@@ -144,7 +144,6 @@ export const ConnectDataView = () => {
     { id: 'hubspot', name: 'HubSpot', type: 'CRM', category: 'SaaS', status: 'available', syncFrequency: 'Daily', health: 'green' },
     { id: 'salesforce', name: 'Salesforce', type: 'CRM', category: 'SaaS', status: 'premium', syncFrequency: 'Daily', health: 'green' },
     { id: 'github', name: 'GitHub', type: 'Version Control', category: 'SaaS', status: 'available', syncFrequency: 'Hourly', health: 'green' },
-    { id: 'stripe', name: 'Stripe', type: 'Payments', category: 'API', status: 'available', syncFrequency: 'Daily', health: 'green' },
     { id: 'kafka', name: 'Kafka', type: 'Streaming', category: 'API', status: 'premium', syncFrequency: 'Real-time', health: 'green' },
     { id: 'ftp', name: 'FTP/SFTP', type: 'File Transfer', category: 'Cloud Storage', status: 'available', syncFrequency: 'Daily', health: 'green' },
     { id: 'onedrive', name: 'OneDrive', type: 'Cloud Storage', category: 'Cloud Storage', status: 'available', syncFrequency: 'Daily', health: 'green' },

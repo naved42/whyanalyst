@@ -751,7 +751,7 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
           )}
         </AnimatePresence>
 
-        <ReactLenis className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth" ref={scrollRef}>
+        <ReactLenis className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-8 scroll-smooth" ref={scrollRef as any}>
           {messages.map((msg, i) => (
             <motion.div 
               key={msg.id}

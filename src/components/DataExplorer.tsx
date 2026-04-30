@@ -17,7 +17,8 @@ import {
   TooltipContent, 
   TooltipTrigger 
 } from './ui/tooltip';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
+import { exportToCSV } from '../lib/data-engine';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
@@ -177,9 +178,7 @@ export const DataExplorer = ({ audit, preview, onUpload, isLoading, onSelectCol,
               size="icon" 
               className="h-6 w-6 text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               onClick={() => {
-                import('@/lib/data-engine').then(({ exportToCSV }) => {
-                  exportToCSV(preview.slice(0, 50), audit.name || 'preview_export');
-                });
+                exportToCSV(preview.slice(0, 50), audit.name || 'preview_export');
               }}
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />

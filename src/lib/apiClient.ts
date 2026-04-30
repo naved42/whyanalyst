@@ -107,7 +107,7 @@ export async function apiRequest<T = any>(
       ok: response.ok,
       status: response.status,
       data,
-      error: !response.ok ? data?.error || `HTTP ${response.status}` : undefined
+      error: !response.ok ? (data as any)?.error || `HTTP ${response.status}` : undefined
     };
   } catch (error) {
     return {
@@ -241,7 +241,7 @@ export async function apiUpload<T = any>(
       ok: response.ok,
       status: response.status,
       data,
-      error: !response.ok ? data?.error || `HTTP ${response.status}` : undefined
+      error: !response.ok ? (data as any)?.error || `HTTP ${response.status}` : undefined
     };
   } catch (error) {
     return {
