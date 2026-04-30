@@ -10,9 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Create a requirements.txt if you don't have one, or copy yours
-COPY requirements.txt* ./
-RUN pip3 install --no-cache-dir pandas fastapi uvicorn python-multipart --break-system-packages
+# Install Python dependencies (only if requirements.txt exists)
+RUN if [ -f requirements.txt ]; then pip3 install --no-cache-dir -r requirements.txt --break-system-packages; else pip3 install --no-cache-dir pandas fastapi uvicorn python-multipart --break-system-packages; fi
 
 # 4. Copy the rest and build frontend
 COPY . .
