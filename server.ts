@@ -13,7 +13,7 @@ import { spawn } from "child_process";
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
-import { SEO_PAGES, renderSeoPage } from './src/seo/seo-pages.js';
+import { SEO_PAGES, renderSeoPage } from './src/seo/seo-pages';
 
 // Load environment variables
 const envLocalPath = path.join(process.cwd(), '.env.local');
