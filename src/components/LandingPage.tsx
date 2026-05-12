@@ -14,9 +14,12 @@ import {
   Shield,
   Layout,
   FileText,
+  AtSign,
+  Instagram,
   Mail,
   Linkedin,
   Twitter,
+  Github,
   ChevronRight,
   Zap as Sparkles, // Using Zap for Sparkles feel
   LineChart,
@@ -32,6 +35,20 @@ interface LandingPageProps {
 export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const aiWorkforceCards: Array<{
+    name: string;
+    role: string;
+    Icon: React.ComponentType<{ className?: string }>;
+  }> = [
+    { name: 'Market Analyst AI', role: 'Trend Intelligence', Icon: TrendingUp },
+    { name: 'Finance Copilot', role: 'Revenue Forecasting', Icon: LineChart },
+    { name: 'Security Sentinel', role: 'Threat Monitoring', Icon: Shield },
+    { name: 'Growth Intelligence', role: 'Acquisition Insights', Icon: Sparkles },
+    { name: 'Research Agent', role: 'Knowledge Discovery', Icon: Network },
+    { name: 'Operations AI', role: 'Workflow Optimization', Icon: Layout },
+    { name: 'Forecast Engine', role: 'Predictive Modeling', Icon: Zap },
+    { name: 'Data Scientist AI', role: 'Advanced Analytics', Icon: BarChart },
+  ];
 
 
 
@@ -53,29 +70,68 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   const renderHome = () => (
     <>
       {/* Hero Section - Desktop Optimized */}
-      <section className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 xl:py-32 w-full flex flex-col lg:flex-row items-center gap-8 lg:gap-12 xl:gap-16 relative max-w-7xl mx-auto">
-        <div className="lg:w-1/2 space-y-6 sm:space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+      <section className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 xl:py-32 w-full flex items-center justify-center relative max-w-7xl mx-auto">
+        <div className="w-full max-w-3xl space-y-6 sm:space-y-8 text-center">
+          <div className="mx-auto inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
             <Sparkles className="w-3.5 h-3.5" />
             <span className="text-xs sm:text-xs font-bold uppercase tracking-wider">The Future of Data Science</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold leading-[1.05] tracking-tight text-brand-on-surface">
-            <span className="text-gradient">AI Data Analysis Tool</span>
+            <span className="text-brand-on-surface">WhyAnalyst.ai</span>
           </h1>
-          <p className="hero-text text-base sm:text-lg lg:text-xl text-brand-surface-variant max-w-lg leading-relaxed">
+          <p className="hero-text text-base sm:text-lg lg:text-xl text-brand-surface-variant max-w-2xl mx-auto leading-relaxed">
             Chat with CSV and Excel files using AI. Ask questions in plain English and get charts, insights, and reports in seconds.
           </p>
-          <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 pt-4">
             <button 
               onClick={onAuth} 
               className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg shadow-xl shadow-blue-600/30 hover:-translate-y-1 active:scale-95 transition-all"
             >
               Start Analyzing Free
             </button>
-            <button onClick={onAuth} className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg border-2 border-blue-600 bg-brand-surface text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 group">
+            <button onClick={onAuth} className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg border-2 border-blue-600 bg-blue-50 text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 group">
               View Live Demo
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Workforce Marquee */}
+      <section className="px-0 sm:px-2 lg:px-4 -mt-3 sm:-mt-5">
+        <div className="relative overflow-hidden border-y border-slate-200/80 bg-gradient-to-r from-brand-background via-brand-surface to-brand-background py-10 sm:py-12">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-20 sm:w-32 bg-gradient-to-r from-brand-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-20 sm:w-32 bg-gradient-to-l from-brand-background to-transparent" />
+
+          <div className="ai-marquee group overflow-hidden">
+            <div className="ai-marquee-track flex w-max items-center gap-4 sm:gap-6 px-4 sm:px-6">
+              {[...aiWorkforceCards, ...aiWorkforceCards].map((card, index) => {
+                const Icon = card.Icon;
+                return (
+                  <article
+                    key={`${card.name}-${index}`}
+                    className="ai-marquee-card w-[180px] sm:w-[200px] rounded-2xl border border-slate-200/90 bg-white/70 p-4 sm:p-5 text-center backdrop-blur-xl transition-all duration-300"
+                  >
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-blue-300/30 bg-gradient-to-br from-blue-500/25 to-purple-500/25 shadow-[0_0_22px_rgba(59,130,246,0.30)]">
+                      <Icon className="h-6 w-6 text-brand-on-surface" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-sm sm:text-base font-semibold text-brand-on-surface">{card.name}</p>
+                      <p className="text-xs text-brand-surface-variant">{card.role}</p>
+                    </div>
+
+                    <div className="mt-3 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-300" />
+                      </span>
+                      <span className="text-[11px] font-medium tracking-wide text-emerald-700">Online</span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -151,16 +207,16 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
     </section>
 
     {/* Use Cases / Industries - Desktop Optimized */}
-      <section id="use-cases" className="bg-brand-primary text-white py-12 sm:py-16 lg:py-24 xl:py-32 overflow-hidden">
+      <section id="use-cases" className="bg-brand-surface border-y border-slate-100 py-12 sm:py-16 lg:py-24 xl:py-32 overflow-hidden">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 xl:gap-20 items-center max-w-7xl mx-auto">
             <div className="lg:w-2/5 space-y-6 sm:space-y-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/80 border border-white/10">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                 <Globe className="w-3.5 h-3.5" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Industry Solutions</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">Cognitive Intelligence for Every Vertical</h2>
-              <p className="text-slate-400 text-base sm:text-lg lg:text-xl leading-relaxed">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-brand-on-surface">Cognitive Intelligence for Every Vertical</h2>
+              <p className="text-brand-surface-variant text-base sm:text-lg lg:text-xl leading-relaxed">
                 Empower your enterprise with specialized AI agents tailored for high-stakes decision making across finance, healthcare, and research.
               </p>
               <div className="space-y-4 sm:space-y-6">
@@ -169,8 +225,8 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                     <TrendingUp className="w-5 h-5 text-brand-primary" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-base sm:text-lg lg:text-xl">Financial Analysis</h4>
-                    <p className="text-white/70 text-sm">Real-time sentiment analysis and predictive risk modeling for global markets.</p>
+                    <h4 className="font-bold text-base sm:text-lg lg:text-xl text-brand-on-surface">Financial Analysis</h4>
+                    <p className="text-brand-surface-variant text-sm">Real-time sentiment analysis and predictive risk modeling for global markets.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -178,8 +234,8 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                     <Stethoscope className="w-5 h-5 text-emerald-500" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-base sm:text-lg lg:text-xl">Healthcare Insights</h4>
-                    <p className="text-white/70 text-sm">Bridge global clinical data to predict patient outcomes with genomic pattern recognition.</p>
+                    <h4 className="font-bold text-base sm:text-lg lg:text-xl text-brand-on-surface">Healthcare Insights</h4>
+                    <p className="text-brand-surface-variant text-sm">Bridge global clinical data to predict patient outcomes with genomic pattern recognition.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -187,8 +243,8 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
                     <Network className="w-5 h-5 text-orange-500" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-base sm:text-lg lg:text-xl">Research Acceleration</h4>
-                    <p className="text-white/70 text-sm">Synthesize complex multi-gigabyte datasets for academic or market breakthroughs.</p>
+                    <h4 className="font-bold text-base sm:text-lg lg:text-xl text-brand-on-surface">Research Acceleration</h4>
+                    <p className="text-brand-surface-variant text-sm">Synthesize complex multi-gigabyte datasets for academic or market breakthroughs.</p>
                   </div>
                 </div>
               </div>
@@ -478,7 +534,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
   );
 
   return (
-    <div className="min-h-screen bg-brand-background text-brand-on-surface selection:bg-brand-primary/20 selection:text-brand-primary">
+    <div className="light min-h-screen bg-brand-background text-brand-on-surface selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-brand-surface/80 backdrop-blur-md border-b border-slate-100 shadow-sm' : 'bg-transparent'}`}>
         <div className="flex items-center justify-between px-6 py-4 w-full">
@@ -487,7 +543,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             className="text-xl font-bold tracking-tight text-brand-on-surface flex items-center gap-2 cursor-pointer"
           >
             <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-[10px]">AI</div>
-            AI Data Analysis Tool
+            WhyAnalyst.ai
           </div>
           <div className="hidden md:flex space-x-8">
             <button 
@@ -508,6 +564,12 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
             >
               Resources
             </button>
+            <a 
+              href="/about"
+              className="text-brand-surface-variant hover:text-brand-primary transition-colors duration-200"
+            >
+              About
+            </a>
             <button 
               onClick={() => switchView('contact')}
               className={currentView === 'contact' ? "text-brand-primary font-semibold border-b-2 border-brand-primary pb-1" : "text-brand-surface-variant hover:text-brand-primary transition-colors duration-200"}
@@ -549,17 +611,17 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         </AnimatePresence>
 
         {/* Final CTA - Common for all pages */}
-        <section className="px-6 py-24 w-full">
-          <div className="bg-gradient-to-br from-brand-primary to-blue-600 p-12 lg:p-24 rounded-[3rem] text-center text-white relative overflow-hidden shadow-3xl">
+        <section className="px-6 py-24 w-full bg-brand-background">
+          <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-12 lg:p-24 rounded-[3rem] text-center text-white relative overflow-hidden shadow-3xl">
             <div className="relative z-10 space-y-8 max-w-3xl mx-auto py-8">
               <h2 className="text-5xl lg:text-6xl font-bold leading-tight">Ready to unlock your data's full potential?</h2>
-              <p className="text-lg opacity-80 leading-relaxed">
-                Join over 50,000 analysts using this AI data analysis tool to accelerate their research and automate decision-making.
+              <p className="text-lg opacity-90 leading-relaxed">
+                Join over 50,000 analysts using Whyanalyst to accelerate their research and automate decision-making.
               </p>
               <div className="pt-8">
                 <button 
                   onClick={onAuth} 
-                  className="bg-white text-brand-primary px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40"
+                  className="bg-white text-blue-600 px-10 py-5 rounded-2xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-blue-900/40"
                 >
                   Start Your Journey Free
                 </button>
@@ -575,14 +637,48 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           <div className="col-span-2 space-y-6">
             <div className="text-2xl font-bold text-slate-900 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-black text-[10px]">AI</div>
-              AI Data Analysis Tool
+              WhyAnalyst.ai
             </div>
             <p className="text-slate-600 max-w-xs leading-relaxed">
               Automating data analysis for enterprise teams. Unlock insights from millions of data points across any industry.
             </p>
             <div className="flex gap-4">
-              <Twitter className="w-5 h-5 text-slate-500 cursor-pointer hover:text-brand-primary transition-colors" />
-              <Linkedin className="w-5 h-5 text-slate-500 cursor-pointer hover:text-brand-primary transition-colors" />
+              <a
+                href="https://github.com/naved42"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub profile"
+                title="GitHub"
+              >
+                <Github className="w-5 h-5 text-slate-500 hover:text-brand-primary transition-colors" />
+              </a>
+              <a
+                href="https://www.threads.com/@muhammadnaveedjat/media"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Threads profile"
+                title="Threads"
+              >
+                <AtSign className="w-5 h-5 text-slate-500 hover:text-brand-primary transition-colors" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/naveedjat/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn profile"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5 text-slate-500 hover:text-brand-primary transition-colors" />
+              </a>
+              <a
+                href="https://www.instagram.com/muhammadnaveedjat/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram profile"
+                title="Instagram"
+              >
+                <Instagram className="w-5 h-5 text-slate-500 hover:text-brand-primary transition-colors" />
+              </a>
               <Mail className="w-5 h-5 text-slate-500 cursor-pointer hover:text-brand-primary transition-colors" />
             </div>
           </div>
@@ -594,7 +690,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           </div>
           <div className="flex flex-col gap-4">
             <span className="font-bold text-slate-900 pb-2">Company</span>
-            <button onClick={() => switchView('home')} className="text-slate-500 hover:text-brand-primary transition-colors text-left">About Us</button>
+            <a href="/about" className="text-slate-500 hover:text-brand-primary transition-colors">About Us</a>
             <a className="text-slate-500 hover:text-brand-primary transition-colors" href="#">Careers</a>
             <a className="text-slate-500 hover:text-brand-primary transition-colors" href="#">Blog</a>
             <button onClick={() => switchView('contact')} className="text-slate-500 hover:text-brand-primary transition-colors text-left">Contact</button>
@@ -607,7 +703,7 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
           </div>
         </div>
         <div className="w-full pt-20 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-600 text-xs font-medium border-t border-slate-100 mt-20">
-          <span>© 2024 AI Data Analysis Tool. All rights reserved.</span>
+          <span>© 2026 Whyanalyst – Developed by Muhammad Naveed</span>
           <div className="flex gap-8">
             <a href="#" className="hover:text-slate-900 transition-colors">Privacy</a>
             <a href="#" className="hover:text-slate-900 transition-colors">Terms</a>
@@ -618,4 +714,3 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
     </div>
   );
 };
-

@@ -9,4 +9,4 @@ Disallow: /auth/
 Disallow: /*?*
 
 # Sitemaps
-Sitemap: https://whyanalyst.com/sitemap.xml
+Sitemap: https://whyanalyst-438909629186.asia-south1.run.app/sitemap.xml

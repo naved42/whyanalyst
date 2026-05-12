@@ -12,6 +12,7 @@ const LazyToaster = React.lazy(() => import('sonner').then(m => ({ default: m.To
 // LAZY LOADING COMPONENTS
 const Workspace = React.lazy(() => import('./components/Workspace').then(m => ({ default: m.Workspace })));
 const LandingPage = React.lazy(() => import('./components/LandingPage').then(m => ({ default: m.LandingPage })));
+const AboutPage = React.lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 const AuthModal = React.lazy(() => import('./components/auth/AuthModal').then(m => ({ default: m.AuthModal })));
 
 const LoadingFallback = () => (
@@ -32,6 +33,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSearch, setShowSearch] = useState(false);
+  const [currentPage, setCurrentPage] = useState<'landing' | 'about'>('landing');
   
   // Data State
   const [activeDatasetId, setActiveDatasetId] = useState<string | null>(null);
@@ -42,14 +44,33 @@ export default function App() {
   
   const [showAuthOverlay, setShowAuthOverlay] = useState(false);
 
-  // Force light mode for landing page
+  // URL-based routing for public pages
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const path = window.location.pathname;
+      if (path === '/about') {
+        setCurrentPage('about');
+      } else {
+        setCurrentPage('landing');
+      }
+    };
+    
+    handleRouteChange();
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, []);
+
+  // Force light mode on the public landing page; use saved theme inside workspace
   useEffect(() => {
     const root = window.document.documentElement;
     if (!user) {
       root.classList.remove('dark');
       root.classList.add('light');
+      return;
     }
-  }, [user]);
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [user, theme]);
 
   // Lazy load Umami analytics
   useEffect(() => {
@@ -83,6 +104,12 @@ export default function App() {
       e.preventDefault();
       setShowSearch(prev => !prev);
     }
+  }, []);
+
+  const handleNavigate = useCallback((page: 'landing' | 'about') => {
+    const path = page === 'about' ? '/about' : '/';
+    window.history.pushState({}, '', path);
+    setCurrentPage(page);
   }, []);
 
   useEffect(() => {
@@ -130,7 +157,11 @@ export default function App() {
       return (
         <div className="light">
           <React.Suspense fallback={<LoadingFallback />}>
-            <LandingPage onAuth={handleAuthOverlayOpen} />
+            {currentPage === 'about' ? (
+              <AboutPage onAuth={handleAuthOverlayOpen} />
+            ) : (
+              <LandingPage onAuth={handleAuthOverlayOpen} />
+            )}
             <AnimatePresence mode="wait">
               {showAuthOverlay && (
                 <motion.div 

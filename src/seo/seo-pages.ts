@@ -18,7 +18,7 @@ export interface SeoPage {
   faqItems?: FaqItem[]; // Drives both JSON-LD FAQPage schema + visible HTML
 }
 
-const BASE_URL = "https://whyanalyst.com";
+const BASE_URL = "https://whyanalyst.ai";
 const OG_IMAGE = `${BASE_URL}/assets/og-image.jpg`;
 const CTA_SIGNUP = `${BASE_URL}/`;
 
@@ -637,6 +637,9 @@ export function renderSeoPage(page: SeoPage): string {
   <title>${page.title}</title>
   <meta name="description" content="${page.description}" />
   <meta name="keywords" content="${page.keywords}" />
+  <meta name="application-name" content="whyanalyst.ai" />
+  <meta name="author" content="Muhammad Naveed (Founder)" />
+  <meta name="founder" content="Muhammad Naveed" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${page.canonical}" />
   <meta name="theme-color" content="#4f46e5" />
@@ -644,6 +647,7 @@ export function renderSeoPage(page: SeoPage): string {
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${page.canonical}" />
+  <meta property="og:site_name" content="whyanalyst.ai" />
   <meta property="og:title" content="${page.title}" />
   <meta property="og:description" content="${page.description}" />
   <meta property="og:image" content="${OG_IMAGE}" />
@@ -668,8 +672,8 @@ export function renderSeoPage(page: SeoPage): string {
     "url": "${page.canonical}",
     "publisher": {
       "@type": "Organization",
-      "name": "WhyAnalyst",
-      "url": "https://whyanalyst.com"
+      "name": "whyanalyst.ai",
+      "url": "https://whyanalyst.ai"
     }
   }
   </script>
@@ -679,9 +683,9 @@ export function renderSeoPage(page: SeoPage): string {
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "WhyAnalyst",
+    "name": "whyanalyst.ai",
     "description": "AI-powered data analysis tool. Upload CSV or Excel files, ask questions in plain English, and get instant charts, insights, and summaries. No coding required.",
-    "url": "https://whyanalyst.com",
+    "url": "https://whyanalyst.ai",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -713,8 +717,8 @@ export function renderSeoPage(page: SeoPage): string {
     ],
     "publisher": {
       "@type": "Organization",
-      "name": "WhyAnalyst",
-      "url": "https://whyanalyst.com"
+      "name": "whyanalyst.ai",
+      "url": "https://whyanalyst.ai"
     }
   }
   </script>
