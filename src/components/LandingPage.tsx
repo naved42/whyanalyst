@@ -116,6 +116,112 @@ export const LandingPage = ({ onAuth }: LandingPageProps) => {
         </div>
       </section>
 
+      {/* What We Do - Feature Boxes Section */}
+      <section className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 w-full">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20 space-y-4">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-on-surface"
+            >
+              What WhyAnalyst Does
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-brand-surface-variant text-base sm:text-lg max-w-3xl mx-auto"
+            >
+              Transform your data into actionable insights with AI-powered analysis
+            </motion.p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Box 1: Upload */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -5 }}
+              className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all"
+            >
+              <div className="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                <Cloud className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-brand-on-surface mb-2">
+                Upload Data
+              </h3>
+              <p className="text-sm sm:text-base text-brand-surface-variant">
+                Drop CSV, Excel files or connect databases. Your data stays secure.
+              </p>
+            </motion.div>
+
+            {/* Box 2: Ask Questions */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              whileHover={{ y: -5 }}
+              className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all"
+            >
+              <div className="bg-purple-50 text-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                <MessageSquare className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-brand-on-surface mb-2">
+                Ask in Plain English
+              </h3>
+              <p className="text-sm sm:text-base text-brand-surface-variant">
+                "What was our best performing product?" AI understands natural questions.
+              </p>
+            </motion.div>
+
+            {/* Box 3: Get Insights */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              whileHover={{ y: -5 }}
+              className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all"
+            >
+              <div className="bg-emerald-50 text-emerald-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                <BarChart className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-brand-on-surface mb-2">
+                Get Instant Insights
+              </h3>
+              <p className="text-sm sm:text-base text-brand-surface-variant">
+                AI analyzes patterns, trends, and anomalies in seconds, not hours.
+              </p>
+            </motion.div>
+
+            {/* Box 4: Export Reports */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ y: -5 }}
+              className="bg-white border border-slate-100 rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all"
+            >
+              <div className="bg-orange-50 text-orange-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-brand-on-surface mb-2">
+                Export & Share
+              </h3>
+              <p className="text-sm sm:text-base text-brand-surface-variant">
+                Download beautiful charts, reports, and visualizations ready to present.
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* AI Workforce Marquee */}
       <section className="px-0 sm:px-2 lg:px-4 -mt-3 sm:-mt-5">
         <div className="relative overflow-hidden border-y border-slate-200/80 bg-brand-background py-8 sm:py-12">
