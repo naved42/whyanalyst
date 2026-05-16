@@ -30,9 +30,10 @@ import { Button } from './ui/button';
 
 interface LandingPageProps {
   onAuth: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export const LandingPage = ({ onAuth }: LandingPageProps) => {
+export const LandingPage = ({ onAuth, onNavigate = () => {} }: LandingPageProps) => {
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
   const aiWorkforceCards: Array<{

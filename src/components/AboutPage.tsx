@@ -14,9 +14,10 @@ import {
 
 interface AboutPageProps {
   onAuth: () => void;
+  onNavigate?: (page: string) => void;
 }
 
-export const AboutPage = ({ onAuth }: AboutPageProps) => {
+export const AboutPage = ({ onAuth, onNavigate = () => {} }: AboutPageProps) => {
   return (
     <div className="light min-h-screen bg-brand-background text-brand-on-surface selection:bg-brand-primary/20 selection:text-brand-primary">
       {/* Navigation */}
