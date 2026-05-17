@@ -25,6 +25,7 @@ import {
   LineChart,
 } from 'lucide-react';
 import { Button } from './ui/button';
+import heroVideo from '../../assets/video/Dashboard_drifting_on_rain_gutter_202605170838.mp4';
 
 
 
@@ -128,11 +129,11 @@ export const LandingPage = ({ onAuth, onNavigate = () => {} }: LandingPageProps)
     <>
       {/* Hero Section - Desktop Optimized (with video background) */}
       <section ref={heroRef} className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 xl:py-32 w-full flex items-center justify-center relative max-w-7xl mx-auto">
-        {/* Video background - place your video at public/assets/videos/whyanalyst-hero.webm */}
+        {/* Video background - bundled from the repo asset folder */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <video
                       ref={videoRef}
-                      src="/assets/videos/whyanalyst-hero.webm"
+                      src={heroVideo}
                       className="w-full h-full object-cover"
                       playsInline
                       muted
