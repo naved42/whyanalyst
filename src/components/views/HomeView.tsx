@@ -686,7 +686,9 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
             </div>
             <div>
               <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest leading-none">Active Analysis</h2>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">Session: {messages[0].content.slice(0, 30)}...</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">
+                Session: {(messages[0]?.content || initialPrompt || 'New Session').slice(0, 30)}...
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
