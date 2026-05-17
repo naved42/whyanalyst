@@ -34,35 +34,6 @@ interface LandingPageProps {
 }
 
 export const LandingPage = ({ onAuth, onNavigate = () => {} }: LandingPageProps) => {
-  // --- Scroll scrub video refs ---
-  const heroRef = React.useRef<HTMLDivElement>(null);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      const hero = heroRef.current;
-      const video = videoRef.current;
-      if (!hero || !video) return;
-      const rect = hero.getBoundingClientRect();
-      const windowH = window.innerHeight || document.documentElement.clientHeight;
-      // Calculate how much of the hero section is visible
-      const visible = Math.max(0, Math.min(rect.bottom, windowH) - Math.max(rect.top, 0));
-      const percent = visible / rect.height;
-      // Clamp percent between 0 and 1
-      const clamped = Math.max(0, Math.min(1, percent));
-      // Scrub video time
-      video.currentTime = clamped * (video.duration || 1);
-    };
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    // Initial scrub
-    setTimeout(handleScroll, 100);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
-
   const [currentView, setCurrentView] = React.useState<'home' | 'pricing' | 'resources' | 'contact'>('home');
   const [isScrolled, setIsScrolled] = React.useState(false);
   const aiWorkforceCards: Array<{
