@@ -203,6 +203,7 @@ interface Dataset {
   preview: any[];
   createdAt: string;
   userId?: string;
+  filePath?: string;
 }
 
 interface AnalysisRecord {
@@ -525,7 +526,7 @@ async function startServer() {
         return res.status(400).json({ error: "Unsupported file type. Use .csv, .xlsx, or .xls" });
       }
 
-      fs.unlinkSync(filePath);
+      // We keep the file for Python analysis (Polars/Pandas)
 
       const columns = Object.keys(data[0] || {});
       const schema = columns.map(col => {
@@ -541,7 +542,8 @@ async function startServer() {
         schema,
         preview: data.slice(0, 50),
         createdAt: new Date().toISOString(),
-        userId
+        userId,
+        filePath: req.file.path
       };
 
       db.datasets.push(newDataset);

@@ -44,11 +44,11 @@ import {
 import { cn } from '@/lib/utils';
 import { RobotAvatar } from '../RobotAvatar';
 import { generateStreamResponse } from '@/src/services/geminiService';
-const ReactMarkdown = React.lazy(() => import('react-markdown'));
 import { useAuth } from '../../hooks/useAuth';
 import { toast } from 'sonner';
 import { ChatPlotly, ChatTable, ChatCode } from '../chat/ChatComponents';
 import { ReactLenis } from 'lenis/react';
+const ReactMarkdown = React.lazy(() => import('react-markdown'));
 
 interface ChatMessage {
   id: string;
@@ -671,16 +671,15 @@ export const HomeView = ({ initialPrompt, onClearPrompt }: HomeViewProps) => {
     setShowUploadMenu(false);
   };
 
-  if (messages.length > 0) {
-    return (
-      <div className="w-full h-full flex flex-col h-[calc(100vh-140px)]">
-        <input 
-          type="file" 
-          className="hidden" 
-          ref={fileInputRef} 
-          onChange={handleChatFileUpload} 
-        />
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-zinc-800">
+  return (
+    <div className="w-full h-full flex flex-col h-[calc(100vh-140px)]">
+      <input 
+        type="file" 
+        className="hidden" 
+        ref={fileInputRef} 
+        onChange={handleChatFileUpload} 
+      />
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-indigo-600 flex items-center justify-center text-white">
               <Brain className="w-4 h-4" />

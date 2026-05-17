@@ -12,8 +12,8 @@ export const pythonService = {
     return response.json();
   },
 
-  analyze: async (query: string, datasetId: string): Promise<AnalysisResult> => {
-    const response = await fetch(`/api/python/analyze?query=${encodeURIComponent(query)}&dataset_id=${encodeURIComponent(datasetId)}`, {
+  analyze: async (query: string, filePath: string): Promise<AnalysisResult> => {
+    const response = await fetch(`/api/python/analyze?query=${encodeURIComponent(query)}&file_path=${encodeURIComponent(filePath)}`, {
       method: 'POST'
     });
     if (!response.ok) throw new Error('Analysis failed');

@@ -82,9 +82,24 @@ export const LandingPage = ({ onAuth, onNavigate = () => {} }: LandingPageProps)
 
   const renderHome = () => (
     <>
-      {/* Hero Section - Desktop Optimized */}
+      {/* Hero Section - Desktop Optimized (with video background) */}
       <section className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 xl:py-32 w-full flex items-center justify-center relative max-w-7xl mx-auto">
-        <div className="w-full max-w-3xl space-y-6 sm:space-y-8 text-center">
+        {/* Video background - place your video at public/assets/videos/whyanalyst-hero.webm */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <video
+            src="/assets/videos/whyanalyst-hero.webm"
+            className="w-full h-full object-cover"
+            playsInline
+            muted
+            autoPlay
+            preload="auto"
+            aria-hidden="true"
+          />
+          {/* subtle overlay to preserve text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/5" />
+        </div>
+
+        <div className="w-full max-w-3xl space-y-6 sm:space-y-8 text-center relative z-10">
           <div className="mx-auto inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
             <Sparkles className="w-3.5 h-3.5" />
             <span className="text-xs sm:text-xs font-bold uppercase tracking-wider">The Future of Data Science</span>

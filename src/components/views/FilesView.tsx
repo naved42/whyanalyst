@@ -40,8 +40,10 @@ import {
   Menu,
   X,
   FileJson,
-  Folder
+  Folder,
+  BarChart2
 } from 'lucide-react';
+import { DataAnalysisModal } from '../DataAnalysisModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useAuth } from '../../hooks/useAuth';
@@ -66,6 +68,7 @@ import { Badge } from "@/src/components/ui/badge";
 interface Dataset {
   id: string;
   name: string;
+  filePath?: string;
   rows: number;
   columns: number;
   schema: any[];
@@ -102,6 +105,10 @@ export const FilesView = () => {
   const [viewAll, setViewAll] = React.useState(false);
   const [uploadProgress, setUploadProgress] = React.useState(0);
   const [uploadStatus, setUploadStatus] = React.useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [analysisDataset, setAnalysisDataset] = React.useState<Dataset | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = React.useState(false);
+  const [showUploadMenu, setShowUploadMenu] = React.useState(false);
+  const [analysisInitialTab, setAnalysisInitialTab] = React.useState<'overview' | 'stats' | 'correlation' | 'preview'>('overview');
 
   const STORAGE_CATEGORIES = [
     { name: 'Datasets', count: 0, size: 0, color: 'bg-slate-900 dark:bg-indigo-500' },
@@ -380,6 +387,32 @@ export const FilesView = () => {
     toast.success("Download started");
   };
 
+  const handleAnalyze = (file: Dataset, initialTab: 'overview' | 'stats' | 'correlation' | 'preview' = 'overview') => {
+    setAnalysisDataset(file);
+    setAnalysisInitialTab(initialTab);
+    setIsAnalysisModalOpen(true);
+  };
+
+  const uploadOptions = [
+    { label: 'CSV File', icon: FileText, accept: '.csv' },
+    { label: 'Excel Spreadsheet', icon: FileJson, accept: '.xlsx,.xls' },
+    { label: 'JSON Data', icon: GitBranch, accept: '.json' },
+    { label: 'Database SQL', icon: Database, accept: '.sql' },
+    { label: 'Cloud Import', icon: CloudUpload, type: 'link' },
+  ];
+
+  const handleOptionClick = (option: any) => {
+    if (option.type === 'link') {
+       toast.info(`Connecting to ${option.label}...`);
+    } else {
+       if (fileInputRef.current) {
+         fileInputRef.current.accept = option.accept || '*/*';
+         fileInputRef.current.click();
+       }
+    }
+    setShowUploadMenu(false);
+  };
+
   const formatSize = (rows: number) => {
     const kb = rows * 0.5; // Mock calculation
     if (kb > 1024) return `${(kb / 1024).toFixed(1)} MB`;
@@ -388,6 +421,13 @@ export const FilesView = () => {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-slate-50 dark:bg-zinc-950 p-4 sm:p-6 lg:p-8 gap-8 w-full">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={(e) => handleFileUpload(e.target.files)} 
+        className="hidden" 
+        multiple
+      />
       {/* Folder Sidebar */}
       <aside className="w-full lg:w-64 space-y-8 shrink-0">
         <div>
@@ -630,6 +670,38 @@ export const FilesView = () => {
               <Badge variant="outline" className="bg-white dark:bg-zinc-900 text-[10px] px-1.5 h-5 font-bold">
                 {filteredFiles.length}
               </Badge>
+              <div className="relative ml-2">
+                <button 
+                  onClick={() => setShowUploadMenu(!showUploadMenu)}
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/10 hover:scale-105 transition-all"
+                >
+                  <Plus className="w-3 h-3" />
+                  New
+                </button>
+                <AnimatePresence>
+                  {showUploadMenu && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-xl shadow-2xl z-50 overflow-hidden py-1.5"
+                    >
+                      {uploadOptions.map((opt, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleOptionClick(opt)}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-left group"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-slate-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20 transition-colors">
+                            <opt.icon className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-600" />
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-600 dark:text-zinc-400 group-hover:text-slate-900 dark:group-hover:text-white">{opt.label}</span>
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
             
             <div className="flex items-center gap-2">
@@ -798,6 +870,26 @@ export const FilesView = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button 
+                                  onClick={() => handleAnalyze(file)}
+                                  className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-indigo-500 rounded-xl transition-all"
+                                >
+                                  <BarChart2 className="w-4 h-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>Run Polars/Pandas Analysis</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+
+                          <button 
+                            onClick={() => downloadFile(file)}
+                            className="p-2 hover:bg-slate-50 dark:hover:bg-zinc-800 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl transition-all"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
                           <div className="hidden group-hover:flex items-center gap-1">
                             <button onClick={() => downloadFile(file)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all" title="Download">
                               <Download className="w-3.5 h-3.5" />
@@ -831,8 +923,8 @@ export const FilesView = () => {
                                   className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl shadow-2xl z-50 overflow-hidden py-2"
                                 >
                                   {[
-                                    { label: 'Preview Rows', icon: Eye, action: () => { toast.info(`Previewing ${file.name}`); setActiveMenuId(null); } },
-                                    { label: 'Analyze with AI', icon: Brain, action: () => { toast.success(`Analyzing ${file.name}...`); setActiveMenuId(null); } },
+                                    { label: 'Preview Rows', icon: Eye, action: () => { handleAnalyze(file, 'preview'); setActiveMenuId(null); } },
+                                    { label: 'Analyze with AI', icon: Brain, action: () => { handleAnalyze(file); setActiveMenuId(null); } },
                                     { label: 'Copy Link', icon: Copy, action: () => copyFileLink(file.id) },
                                     { label: 'Version History', icon: History, action: () => { setShowVersionHistory(true); setActiveMenuId(null); } },
                                   ].map((action) => (
@@ -1073,6 +1165,12 @@ export const FilesView = () => {
           </>
         )}
       </AnimatePresence>
+      <DataAnalysisModal 
+        isOpen={isAnalysisModalOpen} 
+        onClose={() => setIsAnalysisModalOpen(false)} 
+        dataset={analysisDataset} 
+        initialTab={analysisInitialTab}
+      />
     </div>
   );
 };

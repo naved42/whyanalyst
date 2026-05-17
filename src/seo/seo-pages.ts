@@ -90,7 +90,7 @@ export const SEO_PAGES: SeoPage[] = [
     title: "AI Data Analyst Tool — WhyAnalyst",
     description: "WhyAnalyst is your AI data analyst. Upload CSV or Excel, ask questions in plain English, get instant charts & insights. No SQL needed.",
     h1: "AI Data Analyst: Instant Insights From Any Dataset — No Code Required",
-    keywords: "AI data analyst, AI data analyst tool, automated data analysis, AI insights generator, data analysis without coding, best AI analyst tool 2026",
+    keywords: "AI data analyst, AI data analyst tool, automated data analysis, AI insights generator, data analysis without coding, best AI analyst tool 2026, Powerdrill alternative, ChatGPT data analysis alternative, free Julius AI alternative",
     canonical: `${BASE_URL}/ai-data-analyst`,
     bodyHtml: `
       <p><strong>Bottom line:</strong> <a href="${CTA_SIGNUP}">WhyAnalyst</a> is an AI data analyst tool that lets anyone — regardless of technical skill — upload a dataset and immediately get answers, charts, and summaries powered by large language models. No SQL. No Python. No waiting for a data team.</p>
@@ -192,7 +192,7 @@ export const SEO_PAGES: SeoPage[] = [
     title: "Chat With Your Data Using AI — WhyAnalyst",
     description: "Upload any CSV or Excel file and chat with your data. Ask questions in plain English, get instant AI charts and summaries. Free to start.",
     h1: "Chat With Your Data: AI-Powered Analysis in Plain English",
-    keywords: "chat with data, chat with CSV AI, talk to your data, natural language data analysis, ask questions about your data, chat with spreadsheet AI",
+    keywords: "chat with data, chat with CSV AI, talk to your data, natural language data analysis, ask questions about your data, chat with spreadsheet AI, chat with CSV free, AI CSV analyzer",
     canonical: `${BASE_URL}/chat-with-data`,
     bodyHtml: `
       <p><strong>The idea is simple:</strong> upload your data to <a href="${CTA_SIGNUP}">WhyAnalyst</a>, type a question in plain English, and get an answer with a chart. No formulas, no SQL, no analyst required. Just a conversation with your data.</p>
@@ -297,7 +297,7 @@ export const SEO_PAGES: SeoPage[] = [
     title: "Best Julius AI Alternative 2026 — WhyAnalyst",
     description: "The best free Julius AI alternative. Upload CSV or Excel, chat with your data, get instant charts and insights. No coding needed.",
     h1: "Best Julius AI Alternative in 2026: WhyAnalyst",
-    keywords: "Julius AI alternative, best alternative to Julius AI, Julius AI competitor, tools like Julius AI, Julius AI replacement, WhyAnalyst vs Julius AI, similar tools to Julius AI, Julius AI vs WhyAnalyst",
+    keywords: "Julius AI alternative, best alternative to Julius AI, Julius AI competitor, tools like Julius AI, Julius AI replacement, WhyAnalyst vs Julius AI, similar tools to Julius AI, Julius AI vs WhyAnalyst, Powerdrill alternative, ChatGPT data analysis alternative, free Julius AI alternative, AI CSV analyzer, chat with CSV free, no-code data analysis tool",
     canonical: `${BASE_URL}/julius-ai-alternative`,
     bodyHtml: `
       <p><strong>TL;DR:</strong> If you're looking for a Julius AI alternative that's faster, more affordable, and just as powerful — <a href="${CTA_SIGNUP}">WhyAnalyst</a> is the tool. Upload your CSV or Excel file, ask any question in plain English, and get instant charts, summaries, and insights. No subscription required to get started.</p>
@@ -434,7 +434,7 @@ export const SEO_PAGES: SeoPage[] = [
     title: "CSV AI Analyzer — Analyze CSV Files With AI",
     description: "The fastest CSV AI analyzer. Upload your CSV, ask any question in plain English, get instant charts and insights. No coding required.",
     h1: "CSV AI Analyzer: Turn Your CSV Files Into Instant Insights",
-    keywords: "CSV AI analyzer, CSV file analyzer, AI CSV analysis, analyze CSV with AI, CSV data insights tool, best CSV analysis tool",
+    keywords: "CSV AI analyzer, CSV file analyzer, AI CSV analysis, analyze CSV with AI, CSV data insights tool, best CSV analysis tool, chat with CSV free, no-code data analysis tool",
     canonical: `${BASE_URL}/csv-ai-analyzer`,
     bodyHtml: `
       <p>You have the data in a CSV. You need answers fast. <a href="${CTA_SIGNUP}">WhyAnalyst</a> is a <strong>CSV AI analyzer</strong> that reads your file, understands its structure, and answers your questions — all in plain English, no SQL or coding required.</p>
@@ -626,7 +626,7 @@ export const SEO_PAGES: SeoPage[] = [
     title: "No-Code Data Analysis Tool — WhyAnalyst",
     description: "Analyze data without coding. Upload your files, ask questions in plain English, and get AI-powered insights instantly. 100% no-code.",
     h1: "No-Code Data Analysis: Analyze Any Dataset Without Writing Code",
-    keywords: "no code data analysis, no-code analytics, analyze data without coding, data analysis for non-technical users, no SQL data analysis",
+    keywords: "no code data analysis, no-code analytics, analyze data without coding, data analysis for non-technical users, no SQL data analysis, no-code data analysis tool, AI CSV analyzer",
     canonical: `${BASE_URL}/no-code-data-analysis`,
     bodyHtml: `
       <p>Data analysis used to require Python, R, or SQL. Not anymore. <strong>WhyAnalyst</strong> is a fully no-code data analysis platform — if you can type a question, you can analyze data.</p>
