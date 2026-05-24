@@ -5,6 +5,7 @@ import { useAuth } from './hooks/useAuth';
 import { TooltipProvider } from './components/ui/tooltip';
 import { Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence, LazyMotion, domAnimation } from 'motion/react';
+import { Analytics } from '@vercel/analytics/react';
 
 // Toaster — deferred, not needed until a notification fires
 const LazyToaster = React.lazy(() => import('sonner').then(m => ({ default: m.Toaster })));
@@ -266,6 +267,7 @@ export default function App() {
   return (
     <LazyMotion features={domAnimation} strict>
       {renderContent()}
+      <Analytics />
     </LazyMotion>
   );
 }
