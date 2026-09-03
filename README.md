@@ -22,3 +22,8 @@ View your app in AI Studio: https://ai.studio/apps/e869b6c6-eed9-40b0-a451-f6b37
 ## Credits
 
 Founded and developed by **Muhammad Naveed**.
+
+## Daily Repository Review
+
+- Checklist: [DAILY_REPOSITORY_REVIEW_CHECKLIST.md](./DAILY_REPOSITORY_REVIEW_CHECKLIST.md)
+- Log: [DAILY_REPOSITORY_REVIEW_LOG.md](./DAILY_REPOSITORY_REVIEW_LOG.md)
