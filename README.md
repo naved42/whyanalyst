@@ -25,4 +25,6 @@ Founded and developed by **Muhammad Naveed**.
 ## Daily Repository Review
 
 - Checklist: [DAILY_REPOSITORY_REVIEW_CHECKLIST.md](./DAILY_REPOSITORY_REVIEW_CHECKLIST.md)
-- Log: [DAILY_REPOSITORY_REVIEW_LOG.md](./DAILY_REPOSITORY_REVIEW_LOG.md)
+Co-authored-by: manojkewal05-hash 265708179+manojkewal05-hash@users.noreply.github.com
+
+Co-authored-by: manojkewal05-hash <265708179+manojkewal05-hash@users.noreply.github.com>
