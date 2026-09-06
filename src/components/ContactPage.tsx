@@ -17,13 +17,31 @@ export const ContactPage = ({ onAuth, onNavigate = () => {} }: ContactPageProps)
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // Route submissions through the user's email client until a backend contact endpoint is added.
+      const emailSubject = encodeURIComponent(`[WhyAnalyst] ${formData.subject.trim()}`);
+      const emailBody = encodeURIComponent(
+        `Name: ${formData.name.trim()}\nEmail: ${formData.email.trim()}\n\n${formData.message.trim()}`
+      );
+      window.location.href = `mailto:support@whyanalyst.com?subject=${emailSubject}&body=${emailBody}`;
+
+      setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch {
+      setSubmitError('Unable to open your email client. Please email support@whyanalyst.com directly.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -192,9 +210,10 @@ export const ContactPage = ({ onAuth, onNavigate = () => {} }: ContactPageProps)
 
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full py-3 bg-brand-primary text-white font-bold rounded-lg hover:bg-brand-primary/90 transition-all flex items-center justify-center gap-2"
               >
-                Send Message
+                {isSubmitting ? 'Opening Email Client...' : 'Send Message'}
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -205,6 +224,16 @@ export const ContactPage = ({ onAuth, onNavigate = () => {} }: ContactPageProps)
                   className="p-4 bg-green-50 text-green-800 rounded-lg text-center"
                 >
                   Message sent! We'll get back to you soon.
+                </motion.div>
+              )}
+
+              {submitError && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="p-4 bg-red-50 text-red-800 rounded-lg text-center"
+                >
+                  {submitError}
                 </motion.div>
               )}
             </form>
