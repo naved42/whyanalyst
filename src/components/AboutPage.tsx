@@ -163,70 +163,80 @@ export const AboutPage = ({ onAuth, onNavigate = () => {} }: AboutPageProps) => 
 
         {/* Founder Section */}
         <section className="px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-12 sm:py-16 lg:py-24 max-w-6xl mx-auto">
-          <div className="bg-brand-background border border-slate-200 rounded-3xl p-8 sm:p-12 lg:p-16 space-y-8 shadow-sm">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-on-surface">About the Founder</h2>
-              <div className="space-y-4">
-                <p className="text-base text-brand-surface-variant leading-relaxed">
-                  <strong className="text-brand-on-surface">Muhammad Naveed</strong> is a full-stack developer and AI enthusiast with a passion for building intuitive, user-centric applications that solve real-world problems.
-                </p>
-                <p className="text-base text-brand-surface-variant leading-relaxed">
-                  With a background in software engineering and machine learning, Muhammad created Whyanalyst to bridge the gap between powerful AI capabilities and everyday business users who need to extract insights from their data without learning complex tools.
-                </p>
-                <p className="text-base text-brand-surface-variant leading-relaxed">
-                  His vision is to make advanced analytics accessible to everyone, regardless of their technical expertise. Whyanalyst represents years of dedication to combining natural language processing with enterprise-grade data analysis.
-                </p>
+          <div className="bg-brand-background border border-slate-200 rounded-3xl p-8 sm:p-12 lg:p-16 shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 lg:gap-12 items-center">
+              <div className="flex justify-center lg:justify-start">
+                <img
+                  src="/MNaveed.jpeg"
+                  alt="Muhammad Naveed"
+                  className="w-72 h-72 sm:w-80 sm:h-80 rounded-full object-cover"
+                />
               </div>
 
-              {/* Social Links */}
-              <div className="space-y-4 pt-6">
-                <p className="text-sm font-semibold text-brand-on-surface">Connect with Muhammad Naveed:</p>
-                <div className="flex gap-4">
-                  <a
-                    href="https://www.threads.com/@muhammadnaveedjat/media"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Threads profile"
-                    title="Threads"
-                    className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
-                  >
-                    <AtSign className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://www.linkedin.com/in/naveedjat/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="LinkedIn profile"
-                    title="LinkedIn"
-                    className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
-                  >
-                    <Linkedin className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="https://www.instagram.com/muhammadnaveedjat/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Instagram profile"
-                    title="Instagram"
-                    className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
-                  >
-                    <Instagram className="w-5 h-5" />
-                  </a>
-                  <a
-                    href="mailto:naved.jatt.42@gmail.com"
-                    title="Email"
-                    className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
-                  >
-                    <Mail className="w-5 h-5" />
-                  </a>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="space-y-6"
+              >
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-on-surface">About the Founder</h2>
+                <div className="space-y-4">
+                  <p className="text-base text-brand-surface-variant leading-relaxed">
+                    <strong className="text-brand-on-surface">Muhammad Naveed</strong> is a full-stack developer and AI enthusiast with a passion for building intuitive, user-centric applications that solve real-world problems.
+                  </p>
+                  <p className="text-base text-brand-surface-variant leading-relaxed">
+                    With a background in software engineering and machine learning, Muhammad created Whyanalyst to bridge the gap between powerful AI capabilities and everyday business users who need to extract insights from their data without learning complex tools.
+                  </p>
+                  <p className="text-base text-brand-surface-variant leading-relaxed">
+                    His vision is to make advanced analytics accessible to everyone, regardless of their technical expertise. Whyanalyst represents years of dedication to combining natural language processing with enterprise-grade data analysis.
+                  </p>
                 </div>
-              </div>
-            </motion.div>
+
+                {/* Social Links */}
+                <div className="space-y-4 pt-6">
+                  <p className="text-sm font-semibold text-brand-on-surface">Connect with Muhammad Naveed:</p>
+                  <div className="flex gap-4">
+                    <a
+                      href="https://www.threads.com/@muhammadnaveedjat/media"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Threads profile"
+                      title="Threads"
+                      className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      <AtSign className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="https://www.linkedin.com/in/naveedjat/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn profile"
+                      title="LinkedIn"
+                      className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      <Linkedin className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="https://www.instagram.com/muhammadnaveedjat/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram profile"
+                      title="Instagram"
+                      className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      <Instagram className="w-5 h-5" />
+                    </a>
+                    <a
+                      href="mailto:naved.jatt.42@gmail.com"
+                      title="Email"
+                      className="p-3 bg-brand-background border border-slate-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors"
+                    >
+                      <Mail className="w-5 h-5" />
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
 

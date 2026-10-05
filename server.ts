@@ -27,15 +27,19 @@ if (fs.existsSync(envLocalPath)) {
 // OPENAI CLIENTS (Multi-provider AI router)
 // ============================================================
 
-const groq = new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: "https://api.groq.com/openai/v1"
-});
+const groq = process.env.GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1"
+    })
+  : null;
 
-const deepseek = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: "https://api.deepseek.com/v1"
-});
+const deepseek = process.env.DEEPSEEK_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      baseURL: "https://api.deepseek.com/v1"
+    })
+  : null;
 
 // ============================================================
 // UNIFIED MULTI-PROVIDER AI ROUTER
@@ -82,22 +86,26 @@ async function callProvider(
 async function runAI(messages: any[]): Promise<string> {
   const prompt = messages.map((m: any) => m.content).join("\n");
 
-  try {
-    const groqText = await callProvider("Groq", groq as AIClient, "llama-3.1-8b-instant", prompt);
-    if (groqText) {
-      return groqText;
-    }
-  } catch (error) {
-    console.log("Groq failed, switching...");
+  const providers: Array<{ label: string; client: AIClient | null; model: string }> = [
+    { label: "Groq", client: groq as AIClient | null, model: "llama-3.1-8b-instant" },
+    { label: "DeepSeek", client: deepseek as AIClient | null, model: "deepseek-chat" },
+  ];
+
+  const configuredProviders = providers.filter((provider) => !!provider.client);
+
+  if (configuredProviders.length === 0) {
+    throw new Error("No AI provider configured. Set GROQ_API_KEY or DEEPSEEK_API_KEY in your environment.");
   }
 
-  try {
-    const deepSeekText = await callProvider("DeepSeek", deepseek as AIClient, "deepseek-chat", prompt);
-    if (deepSeekText) {
-      return deepSeekText;
+  for (const provider of configuredProviders) {
+    try {
+      const text = await callProvider(provider.label, provider.client as AIClient, provider.model, prompt);
+      if (text) {
+        return text;
+      }
+    } catch (error) {
+      console.log(`${provider.label} failed, trying next provider...`);
     }
-  } catch (error) {
-    console.log("DeepSeek failed");
   }
 
   console.log("All providers failed");
